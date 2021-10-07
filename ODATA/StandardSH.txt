@@ -1,0 +1,26 @@
+Auart		H_TVAK		Tür ve Tanım
+Aufnr		ORDEA		Sipariş Türü Tanımı Kontrol Kod
+Banfn		MBANA		Sat No Kalem No Duran Varlık
+Bsart		H_T161		Belge Türü Tanımı
+Bukrs		H_T001		Şirket Kodu Tanımı Bölge
+Bzirk		H_T171		Bölge ve Adı
+Charg		H_MCHA		Malzeme Numarası Üretim Yeri Parti
+Ebeln		MEKKA		Sa Talebi Kalem Duran Varlık
+Ekgrp		H_T024		Sa Grup Tanım
+Ekorg		H_T024E		Satınalma Org Tanım
+Kunnr		DEBIA		Ülke Posta Kodu Kent Müşteri Adı Müşteri Numarası
+Lgort		H_T001L_	OLD	Depo Yeri ve Tanımı
+Lifnr		KREDA		Ülke Posta Kodu Kent Satıcı Adı Satıcı Numarası
+Matkl		H_T023		Mal Grubu ve Tanımı
+Matnr		MAT0M		Malzeme Numarası ve Tanımı
+Mbrsh		H_T137		Sektör ve Tanımı
+Mtart		H_T134		Malzeme Türü ve Tanımı
+Pernr		EWAPERNR	Personel Numarası Ad - Soyad
+Spart		H_TVTA		Satış Org Dağıtım Kanalı Bölüm Tanım
+Vbeln		F4_VBAK		Sd Belgesi
+Vkbur		H_TVKBZ		Satış Org Dağıtım Kanalı Bölüm Büro Tanım
+Vkgrp		H_TVBVK		Büro Grup Tanım
+Vkorg		H_TVKO		Satış Org Tanım
+Vtweg		H_TVKOV		Satış Org Dağıtım Kanalı Tanım
+Werks		H_T001W_C	Üretim Yeri ve Tanımı
+Fkart		H_TVFK		Faturalama Türü
