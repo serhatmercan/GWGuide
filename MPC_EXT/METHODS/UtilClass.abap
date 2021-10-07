@@ -20,6 +20,9 @@ CLASS ZCL_UTIL.
         mo_annotation->add( iv_key = 'display-format' iv_value = 'NonNegative' ).
 	ENDMETHOD set_display_format.
 	
+	" SET FILTERABLE
+	co_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property )->set_filterable( abap_true ).
+	
 	" SET FILTER FIELD "
 	DATA: iv_entity_name TYPE /IWBEP/MED_EXTERNAL_NAME.
 	DATA: iv_property	 TYPE /IWBEP/MED_EXTERNAL_NAME.
@@ -56,5 +59,14 @@ CLASS ZCL_UTIL.
 	        lo_entity_document->get_property( iv_property_name = 'Mimetype' )->set_as_content_type( ).
 		ENDIF.
 	ENDMETHOD set_media.
+	
+	" SET NAME
+	co_model->get_entity_type( iv_entity_name = iv_entity_name )->add_auto_expand_include(
+      EXPORTING
+        iv_include_name             = 'ZZDMF_GW_PRD_GRP_ITEM_STY'
+        iv_dummy_field              = 'DUMMY'
+        iv_bind_conversions         = 'X' ).
+        
+	co_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property )->set_name( 'ID' )
 	
 ENDCLASS.

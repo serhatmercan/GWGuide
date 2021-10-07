@@ -1,0 +1,28 @@
+Project Name:	ZSM_002_PRJ_GW_PO
+Service Name:	ZSM_002_PRJ_GW_PO_SRV
+Table Name:		ZSM_002_TBL_EKKP
+URL:			https://bfesb19.solco.global.nttdata.com:44300
+
+POHeaderSet - Get Entity Query:			/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet
+POHeaderSet - Get Entity Query - Field:	/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$select=Ernam,Bukrs,Ebeln
+POHeaderSet - Get Entity:				/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')
+POHeaderSet - Get Entity - Field:		/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')/Bukrs
+POHeaderSet - Count: 					/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet/$count
+POHeaderSet - JSON:						/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$format=json
+
+POItemSet - Get Entity Query:	/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POItemSet
+POItemSet - Get Entity:			/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POItemSet(Ebeln='4500000000',Ebelp='00010')
+
+HeadToItemNav:	/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')/HeadToItemNav
+
+ZEkkoEkpo - Get Entity:	/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/ZEkkoEkpoSet(Ebeln='4500000005',Ebelp='00010')
+
+Function Import	Execute Action:	GET: CheckSeatAvailibality?Carrid=LT 
+
+Association:	/CarrierSet('LH')/?$expand=to_Flight
+
+URL Parameters:	$format=xlsx		Excel Format
+				&sap-language=TR	TR Language
+
+Mock Data oData Service:	Northwind Metadata
+
