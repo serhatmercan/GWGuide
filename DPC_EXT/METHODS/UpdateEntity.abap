@@ -1,4 +1,4 @@
-METHOD HEADER_CREATE_ENTITY.
+METHOD XXX_UPDATE_ENTITY.
 *---------------------*
 * - Read After Create -
 *---------------------*

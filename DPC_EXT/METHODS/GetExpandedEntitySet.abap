@@ -9,7 +9,7 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
   CASE io_tech_request_context->get_entity_type_name( ).
     WHEN 'Deep'.
 
-      DATA(ls_deep) = VALUE zsm_deep( ).
+      DATA(ls_deep) TYPE TABLE OF zcl_zsm_deep=>ts_deep.
       DATA lv_key TYPE char1.
 
       LOOP AT select_options ASSIGNING FIELD-SYMBOL(<select_option>).
@@ -31,18 +31,17 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
           et_return  = returns.
 
       IF has_error = abap_false.
-        DATA(ls_data)      = CORRESPONDING zcl_zsm_deep=>ts_deep( ls_header ).
-        ls_data-to_items   = CORRESPONDING #( lt_items ).
-        ls_data-to_objects = CORRESPONDING #( lt_objects ).
+    	APPEND INITIAL LINE TO ls_deep ASSIGNING FIELD-SYMBOL(<fs_data>).
+        <fs_data>   		 = CORRESPONDING #( ls_header ).
+        <fs_data>-to_items   = CORRESPONDING #( lt_items ).
+        <fs_data>-to_objects = CORRESPONDING #( lt_objects ).
       ENDIF.
 
-      copy_data_to_ref( EXPORTING is_data = plan_deep CHANGING cr_data = er_entity ).
+      copy_data_to_ref( EXPORTING is_data = ls_deep CHANGING cr_data = er_entityset ).
       et_expanded_tech_clauses = VALUE #( ( `TO_ITEMS` ) ( `TO_OBJECTS` ) ).
 
-      DATA(message_container) = mo_context->get_message_container( ).
-
-      message_container->add_messages_from_bapi( it_bapi_messages          = returns
-                                                 iv_add_to_response_header = abap_true ).
+      mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = returns
+                                                					iv_add_to_response_header = abap_true ).
     WHEN OTHERS.
       TRY.
           super->/iwbep/if_mgw_appl_srv_runtime~get_expanded_entity( EXPORTING iv_entity_name           = iv_entity_name
