@@ -32,26 +32,24 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
         ls_data-to_objects = CORRESPONDING #( lt_objects ).
       ENDIF.
 
-      copy_data_to_ref( EXPORTING is_data = plan_deep CHANGING cr_data = er_entity ).
+      copy_data_to_ref( EXPORTING is_data = ls_data CHANGING cr_data = er_entity ).
       et_expanded_tech_clauses = VALUE #( ( `TO_ITEMS` ) ( `TO_OBJECTS` ) ).
 
-      DATA(message_container) = mo_context->get_message_container( ).
-
-      message_container->add_messages_from_bapi( it_bapi_messages          = returns
-                                                 iv_add_to_response_header = abap_true ).
+      mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = returns
+                                                					iv_add_to_response_header = abap_true ).
     WHEN OTHERS.
       TRY.
-          super->/iwbep/if_mgw_appl_srv_runtime~get_expanded_entity( EXPORTING iv_entity_name           = iv_entity_name
-                                                                               iv_entity_set_name       = iv_entity_set_name
-                                                                               iv_source_name           = iv_source_name
-                                                                               it_key_tab               = it_key_tab
-                                                                               it_navigation_path       = it_navigation_path
-                                                                               io_expand                = io_expand
-                                                                               io_tech_request_context  = io_tech_request_context
-                                                                     IMPORTING er_entity                = er_entity
-                                                                               es_response_context      = es_response_context
-                                                                               et_expanded_clauses      = et_expanded_clauses
-                                                                               et_expanded_tech_clauses = et_expanded_tech_clauses ).
+          super->/iwbep/if_mgw_appl_srv_runtime~get_expanded_entity_set( EXPORTING	iv_entity_name           = iv_entity_name
+                                                                            		iv_entity_set_name       = iv_entity_set_name
+	                                                                            	iv_source_name           = iv_source_name
+	                                                                            	it_key_tab               = it_key_tab
+	                                                                            	it_navigation_path       = it_navigation_path
+	                                                                            	io_expand                = io_expand
+	                                                                            	io_tech_request_context  = io_tech_request_context
+                                                                    	 IMPORTING	er_entity                = er_entity
+	                                                                            	es_response_context      = es_response_context
+	                                                                            	et_expanded_clauses      = et_expanded_clauses
+	                                                                            	et_expanded_tech_clauses = et_expanded_tech_clauses ).
         CATCH /iwbep/cx_mgw_busi_exception /iwbep/cx_mgw_tech_exception.
       ENDTRY.
   ENDCASE.

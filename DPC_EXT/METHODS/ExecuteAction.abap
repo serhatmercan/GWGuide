@@ -2,9 +2,11 @@
 
     DATA: ls_parameter TYPE /iwbep/s_mgw_name_value_pair,
           lt_return    TYPE bapiret2_tab,
-          ls_deep	   TYPE zcl_zsm_mpc_ext=>ts_deep.
+          ls_deep	   TYPE zcl_zsm_mpc_ext=>ts_deep,
+          ls_value     TYPE zsm_s_value.
 
-    DATA(lo_message) = me->mo_context->get_message_container( ).
+	io_tech_request_context->get_converted_parameters( IMPORTING es_parameter_values = ls_value ).
+
     DATA(lo_parameters) = io_tech_request_context->get_parameters( ).
 
     IF iv_action_name = 'GetData'.
@@ -27,13 +29,10 @@
             it_key_tab     = it_key_tab ).
       ENDIF.
 
-      LOOP AT lt_return ASSIGNING FIELD-SYMBOL(<fs_return>) WHERE type CA 'EAX'.
-        lo_message->add_messages_from_bapi( it_bapi_messages =  lt_return ).
-        RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception.
-      ENDLOOP.
-
-      copy_data_to_ref( EXPORTING is_data = ls_deep
-                         CHANGING cr_data = er_data ).
+      copy_data_to_ref( EXPORTING is_data = ls_deep CHANGING cr_data = er_data ).
+      
+      mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = lt_return
+                                            						iv_add_to_response_header = abap_true ).                
 
     ENDIF.
 

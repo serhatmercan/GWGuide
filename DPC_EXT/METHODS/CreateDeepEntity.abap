@@ -29,20 +29,14 @@
             it_key_tab     = it_key_tab ).
       ENDIF.
 
-	  DATA(message_container) = mo_context->get_message_container( ).
-
-      message_container->add_messages_from_bapi( it_bapi_messages          = lt_return
-                                                 iv_add_to_response_header = abap_true ).    
-
-	  IF message_container->get_worst_message_type( ) CA 'EAX'.
-		RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception EXPORTING message_container = message_container.
-	  ENDIF.	
+	  mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = lt_return
+                                            						iv_add_to_response_header = abap_true ).   
 
       me->/iwbep/if_sb_dpc_comm_services~commit_work( ).
 
       copy_data_to_ref(
         EXPORTING
-          is_data = ls_production_orders
+          is_data = ls_deep
         CHANGING
           cr_data = er_deep_entity ).
 	

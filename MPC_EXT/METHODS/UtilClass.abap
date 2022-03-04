@@ -8,6 +8,25 @@ CLASS ZCL_UTIL.
 	
 	" METHODS "
 	
+	" ADD VALUE HELP "
+	DATA(lo_annotation_target) = vocab_anno_model->create_annotations_target( '/SM/SM_FIORI_SRV.Filter/ID' ).
+	DATA(lo_annotation) = lo_annotation_target->create_annotation( iv_term = 'com.sap.vocabularies.Common.v1.ValueList' ).
+	DATA(lo_record) = lo_annotation->create_record( ).
+	DATA(lo_property) = lo_record->create_property( 'CollectionPath' ).
+	DATA(lo_collection) = lo_record->create_property( 'Parameters' )->create_collection( ).
+	
+	lo_property->create_simple_value( )->set_string( 'VHIDSet' ).
+	
+	lo_record = lo_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterInOut' ).
+	lo_property = lo_record->create_property( 'LocalDataProperty' ).
+	lo_property->create_simple_value( )->set_property_path( CONV #( 'ID' ) ).
+	lo_property = lo_record->create_property( 'ValueListProperty' ).
+    lo_property->create_simple_value( )->set_string( CONV #( 'ID' ) ).
+    
+    lo_record = lo_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterDisplayOnly' ).
+    lo_property = lo_record->create_property( 'ValueListProperty' ).
+    lo_property->create_simple_value( )->set_property_path( CONV #( 'IDText' ) ).
+	
 	" SET DISPLAY FORMAT "
 	DATA: iv_entity_name TYPE /IWBEP/MED_EXTERNAL_NAME.
 	DATA: iv_property	 TYPE /IWBEP/MED_EXTERNAL_NAME.
@@ -15,7 +34,7 @@ CLASS ZCL_UTIL.
 	
 	METHOD set_display_format.
 		mo_cl_property ?= co_model->get_entity_type( iv_entity_name )->get_property( iv_property ).
-        mo_annotation  = property->/iwbep/if_mgw_odata_annotatabl~create_annotation( /iwbep/if_mgw_med_odata_types=>gc_sap_namespace ).
+        mo_annotation  = mo_cl_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( /iwbep/if_mgw_med_odata_types=>gc_sap_namespace ).
         mo_annotation->add( iv_key = 'display-format' iv_value = 'Date' ).
         mo_annotation->add( iv_key = 'display-format' iv_value = 'NonNegative' ).
 	ENDMETHOD set_display_format.
@@ -32,6 +51,7 @@ CLASS ZCL_UTIL.
 		mo_cl_property ?= co_model->get_entity_type( iv_entity_name )->get_property( iv_property ).
 		mo_annotation = mo_cl_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( iv_annotation_namespace = /iwbep/if_mgw_med_odata_types=>gc_sap_namespace ).
 		mo_annotation->add( iv_key = 'filter-restriction' iv_value = 'single-value').
+		mo_annotation->add( iv_key = 'filter-restriction' iv_value = 'interval').
 	ENDMETHOD.
 	
 	" SET LABEL "
@@ -45,6 +65,14 @@ CLASS ZCL_UTIL.
 		mo_entity = co_model->get_entity_type( iv_entity_name = iv_entity_name ).
 	    mo_if_property = mo_entity->get_property( iv_property_name = iv_property ).
 	    mo_if_property->set_label_from_text_element( EXPORTING iv_text_element_symbol = iv_text io_object_ref = io_object ).
+	    mo_if_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( 'sap' )->add( EXPORTING iv_key = 'label' iv_value = 'Text' ).
+	ENDMETHOD SET_LABEL.
+	
+	METHOD SET_LABEL.
+		co_model->get_entity_type( iv_entity_name = iv_entity_name )
+		->get_property( iv_property_name = iv_property )
+		->/iwbep/if_mgw_odata_annotatabl~create_annotation( iv_annotation_namespace = /iwbep/if_mgw_med_odata_types=>gc_sap_namespace )
+		->add( iv_key = 'label' iv_value = 'Text' ).
 	ENDMETHOD SET_LABEL.
 	
 	" SET MEDIA "
