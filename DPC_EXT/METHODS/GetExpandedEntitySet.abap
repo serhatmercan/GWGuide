@@ -9,14 +9,14 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
   CASE io_tech_request_context->get_entity_type_name( ).
     WHEN 'Deep'.
 
-      DATA(ls_deep) TYPE TABLE OF zcl_zsm_deep=>ts_deep.
+      DATA ls_deep TYPE TABLE OF zcl_zsm_deep=>ts_deep.
       DATA lv_key TYPE char1.
 
       LOOP AT select_options ASSIGNING FIELD-SYMBOL(<select_option>).
         CASE <select_option>-property.
           WHEN 'Key'.
             filter->convert_select_option( EXPORTING is_select_option = <select_option> IMPORTING et_select_option = range_key ).
-            lv_key = |{ range_key[ 1 ]-low. ALPHA = IN }|.
+            lv_key = |{ range_key[ 1 ]-low ALPHA = IN }|.
         ENDCASE.
       ENDLOOP.
 
