@@ -11,7 +11,7 @@ ENDIF.
 
 lo_message_container = mo_context->get_message_container( ).
 lo_message_container->add_message_text_only( EXPORTING iv_msg_type = 'E' iv_msg_text = 'Error Occured' ).
-lo_message_container->add_messages_from_bapi( it_bapi_messages = lt_return
+lo_message_container->add_messages_from_bapi( it_bapi_messages 			= lt_return
                                               iv_add_to_response_header = abap_true ).
 
 RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception EXPORTING message_container = lo_message_container.

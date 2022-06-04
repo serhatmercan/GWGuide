@@ -60,9 +60,9 @@
     ENDIF.
     
     SELECT *
-    	INTO CORRESPONDING FIELDS OF TABLE et_entityset
-        FROM mara.
-        WHERE matnr IN lr_matnr.
+      INTO CORRESPONDING FIELDS OF TABLE et_entityset
+      FROM mara.
+      WHERE matnr IN lr_matnr.
     
     " Filtering
     /iwbep/cl_mgw_data_util=>filtering( EXPORTING it_select_options = it_filter_select_options CHANGING ct_data = et_entityset ).
