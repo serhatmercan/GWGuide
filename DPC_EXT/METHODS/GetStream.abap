@@ -1,19 +1,19 @@
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_stream.
 
 	DATA: ls_meta      TYPE sfpmetadata,
-          ls_stream    TYPE ty_s_media_resource,
-		  lv_mime_type TYPE nte_mimetype VALUE 'application/pdf',
-          lv_content   TYPE xstring,
-          lv_file_name TYPE rsbfilename.
+        ls_stream    TYPE ty_s_media_resource,
+		    lv_mime_type TYPE nte_mimetype VALUE 'application/pdf',
+        lv_content   TYPE xstring,
+        lv_file_name TYPE rsbfilename.
     
-    DATA(lo_fp) 	  = cl_fp=>get_reference( ).
-    DATA(lo_pdf_obj)  = lo_fp->create_pdf_object( connection = 'ADS' ).              
+  DATA(lo_fp) 	    = cl_fp=>get_reference( ).
+  DATA(lo_pdf_obj)  = lo_fp->create_pdf_object( connection = 'ADS' ).              
 	DATA(lv_out_type) = 'attachment'. "inline"
 
 	DATA: lv_key      TYPE char1,
     	  lv_pdf      TYPE xstring,
-          lv_pdf_name TYPE text40,
-          lt_return   TYPE TABLE OF bapiret2.
+        lv_pdf_name TYPE text40,
+        lt_return   TYPE TABLE OF bapiret2.
     
     CASE io_tech_request_context->get_entity_type_name( ).
       WHEN 'Document'.
@@ -33,7 +33,7 @@
           lv_mime_type = lt_documents[ 1 ]-mime_type.
           lv_file_name = lt_documents[ 1 ]-file_name.
         ENDIF.
-    ENDCASE. 
+    ENDCASE.
     
     TRY.
         lo_pdf_obj->set_document( pdfdata = lv_content ).

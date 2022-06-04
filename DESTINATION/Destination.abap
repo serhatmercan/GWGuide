@@ -31,7 +31,7 @@ lv_rfc_name = 'ZSM_F_RFC'.
               OTHERS         = 1002.
 
           lv_subrc = sy-subrc.
-	  CATCH cx_root INTO lx_root.
+	    CATCH cx_root INTO lx_root.
           lv_subrc = 1001.
           lv_exc_msg = lx_root->if_message~get_text( ).
       ENDTRY.

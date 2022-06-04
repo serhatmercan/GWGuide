@@ -1,22 +1,21 @@
-Project Name:	ZSM_002_PRJ_GW_PO
-Service Name:	ZSM_002_PRJ_GW_PO_SRV
-Table Name:		ZSM_002_TBL_EKKP
-URL:			https://bfesb19.solco.global.nttdata.com:44300
+Project Name:	ZSM
+Service Name:	ZSM_SRV
+URL:			https://serhatmercan.com:44300
 
-Function Import:				/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/GetUserInfo?USERNAME='SMERCAN'
-Header - Get Entity Query:		/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet
-Header - Get Entity:			/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')
-Header - Get Entity - Field:	/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')/Bukrs
-Header - Association - I:		/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')/HeadToItemNav
-Header - Association - II:		/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet('4500000005')/?$expand=HeadToItemNav
-Header - Count: 				/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet/$count
-Header - Filter:				/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$filter=Erdat ge datetime'2021-12-26-15T00:00:00' and Erdat le datetime'2022-12-26-15T00:00:00'
-Header - Inline Count: 			/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$inlinecount=allpages
-Header - JSON:					/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$format=json
-Header - Select:				/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$select=Ernam,Bukrs,Ebeln
-Header - Sort:					/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POHeaderSet?$orderby=Erdat desc
-Item - Get Entity Query:		/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POItemSet
-Item - Get Entity:				/sap/opu/odata/sap/zsm_002_prj_gw_po_srv/POItemSet(Ebeln='4500000000',Ebelp='00010')
+Function Import:				/sap/opu/odata/sap/ZSM_SRV/GetUserInfo?USERNAME='SMERCAN'
+Header - Get Entity Query:		/sap/opu/odata/sap/ZSM_SRV/POHeaderSet
+Header - Get Entity:			/sap/opu/odata/sap/ZSM_SRV/POHeaderSet('4500000005')
+Header - Get Entity - Field:	/sap/opu/odata/sap/ZSM_SRV/POHeaderSet('4500000005')/Bukrs
+Header - Association - I:		/sap/opu/odata/sap/ZSM_SRV/POHeaderSet('4500000005')/HeadToItemNav
+Header - Association - II:		/sap/opu/odata/sap/ZSM_SRV/POHeaderSet('4500000005')/?$expand=HeadToItemNav
+Header - Count: 				/sap/opu/odata/sap/ZSM_SRV/POHeaderSet/$count
+Header - Filter:				/sap/opu/odata/sap/ZSM_SRV/POHeaderSet?$filter=Erdat ge datetime'2021-12-26-15T00:00:00' and Erdat le datetime'2022-12-26-15T00:00:00'
+Header - Inline Count: 			/sap/opu/odata/sap/ZSM_SRV/POHeaderSet?$inlinecount=allpages
+Header - JSON:					/sap/opu/odata/sap/ZSM_SRV/POHeaderSet?$format=json
+Header - Select:				/sap/opu/odata/sap/ZSM_SRV/POHeaderSet?$select=Ernam,Bukrs,Ebeln
+Header - Sort:					/sap/opu/odata/sap/ZSM_SRV/POHeaderSet?$orderby=Erdat desc
+Item - Get Entity Query:		/sap/opu/odata/sap/ZSM_SRV/POItemSet
+Item - Get Entity:				/sap/opu/odata/sap/ZSM_SRV/POItemSet(Ebeln='4500000000',Ebelp='00010')
 
 URL Parameters:	$format=xlsx		Excel Format
 				&sap-language=TR	TR Language

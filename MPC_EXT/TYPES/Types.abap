@@ -8,7 +8,7 @@ CLASS zcl_zsm_mpc_ext DEFINITION
     TYPES: BEGIN OF ts_deep.
              INCLUDE TYPE ts_header.
     TYPES:   
-             to_detail  TYPE ts_detail,
-             to_items	TYPE STANDARD TABLE OF ts_item WITH DEFAULT KEY,
-             to_objects TYPE STANDARD TABLE OF ts_object WITH DEFAULT KEY,
-           END OF ts_deep .
+             detail  TYPE ts_detail,
+             items	 TYPE STANDARD TABLE OF ts_item WITH DEFAULT KEY,
+             objects TYPE STANDARD TABLE OF ts_object WITH DEFAULT KEY,
+           END OF ts_deep.
