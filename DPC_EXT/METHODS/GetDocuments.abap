@@ -1,5 +1,7 @@
   METHOD documentset_get_entityset.
 
+    "Url: 255 Characters    
+
     TRY.
         CALL METHOD super->documentset_get_entityset
           EXPORTING
@@ -18,8 +20,8 @@
             et_entityset             = et_entityset
             es_response_context      = es_response_context.
 
-        LOOP AT et_entityset ASSIGNING FIELD-SYMBOL(<fs_data>).
-          <fs_data>-url = |/sap/opu/odata/sap/ZSM_DOCUMENT_SRV/DocumentSet(MaterialNo='{ er_entity-material_no }',DocumentID='{ er_entity-document_id }')/$value|.
+        LOOP AT et_entityset ASSIGNING FIELD-SYMBOL(<fs_entity>).
+          <fs_entity>-url = |/sap/opu/odata/sap/ZSM_DOCUMENT_SRV/DocumentSet(MaterialNo='{ fs_entity-material_no }',DocumentID='{ fs_entity-document_id }')/$value|.
         ENDLOOP.
 
       CATCH /iwbep/cx_mgw_busi_exception.
