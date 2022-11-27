@@ -3,7 +3,7 @@ METHOD define.
 	super->define( ).
 
   " Date Format "
-  mo_annotation = model->get_entity_type( 'Header' )->get_property( 'Key' )->/iwbep/if_mgw_odata_annotatabl~create_annotation( /iwbep/if_mgw_med_odata_types=>gc_sap_namespace )->add( iv_key = 'display-format' iv_value = 'Date' ).
+  model->get_entity_type( 'Header' )->get_property( 'Key' )->/iwbep/if_mgw_odata_annotatabl~create_annotation( /iwbep/if_mgw_med_odata_types=>gc_sap_namespace )->add( iv_key = 'display-format' iv_value = 'Date' ).
 	
 	TRY.
 		zcl_util=>set_display_format( EXPORTING iv_entity_name = 'Header' iv_property = 'Key' CHANGING co_model = model ).
