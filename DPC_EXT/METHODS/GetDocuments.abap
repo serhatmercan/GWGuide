@@ -21,7 +21,7 @@
             es_response_context      = es_response_context.
 
         LOOP AT et_entityset ASSIGNING FIELD-SYMBOL(<fs_entity>).
-          <fs_entity>-url = |/sap/opu/odata/sap/ZSM_DOCUMENT_SRV/DocumentSet(MaterialNo='{ fs_entity-material_no }',DocumentID='{ fs_entity-document_id }')/$value|.
+          <fs_entity>-url = |/sap/opu/odata/sap/ZSM_DOCUMENT_SRV/DocumentSet(MaterialNo='{ <fs_entity>-material_no }',DocumentID='{ <fs_entity>-document_id }')/$value|.
         ENDLOOP.
 
       CATCH /iwbep/cx_mgw_busi_exception.
