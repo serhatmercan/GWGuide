@@ -73,6 +73,9 @@
     ELSE.
       CLEAR es_response_context-inlinecount.
     ENDIF.
+
+    " Paging
+    /iwbep/cl_mgw_data_util=>paging( EXPORTING is_paging = is_paging CHANGING ct_data = et_entityset ).
     
     " Sorting
     /iwbep/cl_mgw_data_util=>orderby( EXPORTING it_order = it_order CHANGING ct_data = et_entityset ).

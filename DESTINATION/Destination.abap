@@ -51,4 +51,9 @@ lv_rfc_name = 'ZSM_F_RFC'.
       lv_subrc = sy-subrc.
 
     ENDIF. 
+---
+" Get RFC Destination w/ System ID
+DATA lv_destination TYPE rfcdest. 
+
+lv_destination = SWITCH #( sy-sysid WHEN 'FIP' THEN 'ELPCLNT100_RFC' ELSE 'ELTCLNT100_RFC' ).
 

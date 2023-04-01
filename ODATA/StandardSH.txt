@@ -23,5 +23,5 @@ Vkgrp		H_TVBVK		Büro Grup Tanım
 Vkorg		H_TVKO		Satış Org Tanım
 Vtweg		H_TVKOV		Satış Org Dağıtım Kanalı Tanım
 Waers       FC_WAERS    Para Birimi
-Werks		H_T001W_C	Üretim Yeri ve Tanımı
+Werks		H_NAME1	    Üretim Yeri ve Tanımı
 Fkart		H_TVFK		Faturalama Türü
