@@ -6,9 +6,13 @@
         lv_content   TYPE xstring,
         lv_file_name TYPE rsbfilename.
     
-  DATA(lo_fp) 	    = cl_fp=>get_reference( ).
-  DATA(lo_pdf_obj)  = lo_fp->create_pdf_object( connection = 'ADS' ).              
-	DATA(lv_out_type) = 'attachment'. "inline"
+  DATA(lo_fp)       = cl_fp=>get_reference( ).
+  DATA(lv_out_type) = 'attachment'. "inline" "outline"
+
+  TRY.
+    DATA(lo_pdf_obj)  = lo_fp->create_pdf_object( connection = 'ADS' ).
+  CATCH cx_fp_runtime_internal cx_fp_runtime_system cx_fp_runtime_usage.
+  ENDTRY.
 
 	DATA: lv_key      TYPE char1,
     	  lv_pdf      TYPE xstring,
@@ -50,6 +54,6 @@
     ls_stream = VALUE ty_s_media_resource( mime_type = lv_mime_type value = lv_content ).
 
     me->set_header( VALUE #( name = 'Content-Disposition' value = |{ lv_out_type }; filename="{ escape( val = lv_file_name format = cl_abap_format=>e_url ) }"| ) ).
-    me->copy_data_to_ref( EXPORTING is_data = ls_stream CHANGING cr_data = er_stream ).
+    me->copy_data_to_ref( EXPORTING is_data = ls_stream CHANGING cr_data = er_stream ).   
 
 ENDMETHOD.
