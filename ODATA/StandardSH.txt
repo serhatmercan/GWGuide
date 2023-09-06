@@ -1,27 +1,35 @@
-Auart		H_TVAK		Tür ve Tanım
-Aufnr		ORDEA		Sipariş Türü Tanımı Kontrol Kod
-Banfn		MBANA		Sat No Kalem No Duran Varlık
-Bsart		H_T161		Belge Türü Tanımı
-Bukrs		H_T001		Şirket Kodu Tanımı Bölge
-Bzirk		H_T171		Bölge ve Adı
-Charg		H_MCHA		Malzeme Numarası Üretim Yeri Parti
-Ebeln		MEKKA		SA Talebi Kalem Duran Varlık
-Ekgrp		H_T024		SA Grup Tanım
-Ekorg		H_T024E		SA Organizasyonu Tanım
-Kunnr		DEBIA		Ülke Posta Kodu Kent Müşteri Adı Müşteri Numarası
-Lgort		H_T001L_	OLD	Depo Yeri ve Tanımı
-Lifnr		KREDA		Ülke Posta Kodu Kent Satıcı Adı Satıcı Numarası
-Matkl		H_T023		Mal Grubu ve Tanımı
-Matnr		MAT0M		Malzeme Numarası ve Tanımı
-Mbrsh		H_T137		Sektör ve Tanımı
-Mtart		H_T134		Malzeme Türü ve Tanımı
-Pernr		EWAPERNR	Personel Numarası Ad - Soyad
-Spart		H_TVTA		Satış Org Dağıtım Kanalı Bölüm Tanım
-Vbeln		F4_VBAK		SD Belgesi
-Vkbur		H_TVKBZ		Satış Org Dağıtım Kanalı Bölüm Büro Tanım
-Vkgrp		H_TVBVK		Büro Grup Tanım
-Vkorg		H_TVKO		Satış Org Tanım
-Vtweg		H_TVKOV		Satış Org Dağıtım Kanalı Tanım
-Waers       FC_WAERS    Para Birimi
-Werks		H_NAME1	    Üretim Yeri ve Tanımı
-Fkart		H_TVFK		Faturalama Türü
+FIELD   WITH    Elementary SH           Description
+Auart			H_TVAK					Order Types (Sipariş Türleri)
+Aufnr			ORDEA					Controlling Area & Processing Group (Kontrol Kodu & İşlem Grubu)
+Banfn			MBANA					Purchase Requisitions Per Asset (Satınalma Talepleri -> Duran Varlık)
+Bsart			H_T161					Document Type (Belge Türü)
+Bukrs			H_T001					Company Code (Şirket Kodu)
+Bu_Partner      BUPAP                   Partner (Muhatap)
+Bzirk			H_T171					Sales District (Müşteri Bölgesi)
+Charg			H_MCHA					Material Number & Plant & Batch VH (Malzeme Numarası & Üretim Yeri & Parti SH)
+Ebeln			MEKKA					Purchasing Documents Per Asset (Satınalma belgeleri -> Duran Varlık)
+Ekgrp			H_T024					Purchasing Group (Satınalma Grubu)
+Ekorg			H_T024E					Purchasing Organization (Satınalma Organizasyonu)
+Fkart			H_TVFK					Billing Type (Faturalama Türü)
+Gsber           H_TGSB                  Business Area (İş Alanı)
+Kunnr			DEBIA					Customer (Müşteri)
+Kunnr       	H_KNA1      			Customer w/out Production Place From KNA1 (Müşteri)
+Lgort			H_T001L_				Warehouse (Depo Yeri)
+Lgort   Werks   H_T001L_OLD             Warehouse (Depo Yeri)
+Lifnr			KREDA					Vendor (Satıcı)
+Matkl			H_T023					Material Group (Mal Grubu)
+Matnr			MAT0M					Material Code (Malzeme No)
+Mbrsh			H_T137					Industry Sector (Sektör) 
+Mseh3   Msehi   H_T006                  Measurement Unit (Ölçü Birimi - UOM)
+Mtart			H_T134					Material Type (Malzeme Türü)
+Pernr			EWAPERNR				Personnel Number (Personel Numarası & Ad & Soyad)
+Spart	Vkorg	H_TVTA					Division (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Tanım)
+Vbeln			F4_VBAK					SD Document Number (SD Belge No)
+Vkbur	Vkorg	H_TVKBZ					Sales Office (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Büro & Tanım)
+Vkgrp	Vkbur	H_TVBVK					Sales Group (Satış Bürosu)
+Vkorg		    H_TVKO					Sales Organization (Organizasyonu)
+Vkorg	Bukrs	FAGL_ELM_VKORG_BUKRS    Sales Organization w/ Company Code (Satış Organizasyonu + Şirket Kodu) 
+Vtweg	Vkorg	H_TVKOV					Distribution Channel w/ Sales Organization (Dağıtım Kanalı + Satış Organizasyonu)
+Waers       	FC_WAERS    			Currency (Para Birimi)
+Werks			H_NAME1	    			Production Place (Üretim Yeri)
+Werks           H_T001W                 Production Place (Üretim Yeri)
