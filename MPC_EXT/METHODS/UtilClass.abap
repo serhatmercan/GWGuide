@@ -104,6 +104,12 @@ CLASS zcl_sm_mpc_util DEFINITION
         !iv_property    TYPE /iwbep/med_annotation_value
       RAISING
         /iwbep/cx_mgw_med_exception .
+    METHODS set_function_import_property_nullable
+      IMPORTING
+        !iv_action_name TYPE /iwbep/med_external_name
+        !iv_property    TYPE /iwbep/med_annotation_value
+      RAISING
+        /iwbep/cx_mgw_med_exception .
     METHODS set_label
       IMPORTING
         !iv_entity_name TYPE /iwbep/med_external_name
@@ -511,6 +517,22 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
     ENDTRY.
 
   ENDMETHOD.
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Public Method ZCL_SM_MPC_UTIL->SET_FUNCTION_IMPORT_PROPERTY_NULLABLE
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ACTION_NAME                 TYPE        /IWBEP/MED_EXTERNAL_NAME
+* | [--->] IV_PROPERTY                    TYPE        /IWBEP/MED_ANNOTATION_VALUE
+* | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+METHOD set_function_import_property_nullable.
+
+  TRY.
+      go_model->get_action( iv_action_name = iv_action_name )->get_input_parameter( iv_name = iv_property )->set_nullable( iv_nullable = abap_true ).
+    CATCH /iwbep/cx_mgw_med_exception  .
+  ENDTRY.
+
+ENDMETHOD.
 
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+

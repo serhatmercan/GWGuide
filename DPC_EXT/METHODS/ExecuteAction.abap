@@ -1,9 +1,10 @@
   METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
 
-    DATA: ls_parameter TYPE /iwbep/s_mgw_name_value_pair,
-          lt_return    TYPE bapiret2_tab,
-          ls_deep	     TYPE zcl_zsm_mpc_ext=>ts_deep,
-          ls_value     TYPE zsm_s_value.
+    DATA: ls_parameter TYPE /iwbep/s_mgw_name_value_pair,          
+          ls_deep	     TYPE zcl_zsm_mpc_ext=>ts_deep,          
+          ls_value     TYPE zsm_s_value,
+          lt_deep      TYPE STANDARD TABLE OF zcl_zsm_mpc_ext=>ts_deep,
+          lt_return    TYPE bapiret2_tab.
 
     DATA(lo_message) = me->mo_context->get_message_container( ).
 
