@@ -1,7 +1,7 @@
 METHOD HEADER_CREATE_ENTITY.
-*-------------------------*
-* - Read After Create - I
-*-------------------------*
+*---------------------*
+* - Read After Create -
+*---------------------*
 
 	TRY.
         DATA: ls_data   LIKE er_entity,
@@ -20,11 +20,4 @@ METHOD HEADER_CREATE_ENTITY.
 	mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = lt_return
                                             					          iv_add_to_response_header = abap_true ).
 
-*-------------------------*
-* - Read After Create - II
-*-------------------------*
-er_entity = CORRESPONDING #( is_data ).
-
-mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = et_return
-                                                              iv_add_to_response_header = External_true ).
 ENDMETHOD.
