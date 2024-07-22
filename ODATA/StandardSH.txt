@@ -31,7 +31,7 @@ Saknr   Hkont   SAKO_CORE               G/L Acct (Ana Hesap) (ReconAcctVH) (Akon
 Spart	Vkorg	H_TVTA					Division (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Tanım)
 Spras           H_T002                  Language Flag(Dil Göstergesi)    
 Vbeln			F4_VBAK					SD Document Number (SD Belge No)
-Vkbur	Vkorg	H_TVKBZ					Sales Office (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Büro & Tanım)
+Vkbur	Vkorg	H_TVKBZ	& H_TVBUR		Sales Office (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Büro & Tanım)
 Vkgrp	Vkbur	H_TVBVK					Sales Group (Satış Bürosu)
 Vkorg		    H_TVKO					Sales Organization (Organizasyonu) (SalesOrganizationVH)
 Vkorg	Bukrs	FAGL_ELM_VKORG_BUKRS    Sales Organization w/ Company Code (Satış Organizasyonu + Şirket Kodu) 

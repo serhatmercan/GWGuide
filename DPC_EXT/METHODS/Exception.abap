@@ -1,10 +1,10 @@
 DATA: lo_message_container TYPE REF TO /iwbep/if_message_container,
-	  lt_return TYPE bapiret2_t.
+	  lt_return 		   TYPE bapiret2_t.
 
 DATA(lv_entity_name) = io_tech_request_context->get_entity_type_name( ).
 	  
-IF lt_return[] IS NOT INITIAL.
-	me->/iwbep/if_sb_dpc_comm_services~rfc_save_log( EXPORTING iv_entity_type = CONV string( lv_entity_name )
+IF line_exists( lt_return[ type = 'E' ] ).
+	me->/iwbep/if_sb_dpc_comm_services~rfc_save_log( EXPORTING iv_entity_type = lv_entity_name
             												   it_return      = lt_return
             												   it_key_tab     = it_key_tab ).
 ENDIF.

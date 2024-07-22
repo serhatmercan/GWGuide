@@ -1,5 +1,4 @@
 METHOD xxxset_get_entity.
-	
 	" Read Data - I
 	DATA(ls_data) = VALUE zcl_zsm_mpc=>ts_xxx( ).
 
@@ -9,22 +8,15 @@ METHOD xxxset_get_entity.
 	ENDIF.
 	
 	" Read Data - II
-	DATA lt_key TYPE /iwbep/t_mgw_tech_pairs.
-	
-	lt_key = io_tech_request_context->get_keys( ).
-	
-	READ TABLE lt_key INTO DATA(ls_key) WITH KEY name = 'ID'.
-  IF is_key_tab-value IS NOT INITIAL.
-    er_entity-id = ls_key-value.
-  ENDIF.
-	
-  " Read Data - III
-  READ TABLE it_key_tab INTO DATA(is_key_tab) WITH KEY name = 'Matnr'.
-  IF is_key_tab-value IS NOT INITIAL.
-    SELECT SINGLE *
-      INTO CORRESPONDING FIELDS OF er_entity
-      FROM mara
-      WHERE matnr EQ is_key_tab-value.
-  ENDIF.
+	DATA(lt_keys) = io_tech_request_context->get_keys( ).
+	DATA(lv_material) = VALUE #( lt_keys[ name = 'Material' ]-value OPTIONAL ).
 
+  IF lv_material IS NOT INITIAL.
+    er_entity-material = lv_material.
+
+    SELECT SINGLE *
+      FROM mara
+      WHERE matnr EQ @lv_material
+      INTO CORRESPONDING FIELDS OF er_entity.
+  ENDIF.
 ENDMETHOD.
