@@ -205,11 +205,7 @@ CLASS zcl_sm_mpc_util DEFINITION
     DATA gv_service_name TYPE string .
 ENDCLASS.
 
-
-
 CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
-
-
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->ADD_VALUE_HELP
 * +-------------------------------------------------------------------------------------------------+
@@ -219,7 +215,6 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [--->] IV_TEXT_NAME                   TYPE        STRING
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD add_value_help.
-
     go_va_target = go_va_model->create_annotations_target( iv_annotation_target ).
     go_va = go_va_target->create_annotation( iv_term = 'com.sap.vocabularies.Common.v1.ValueList' ).
     go_va_record = go_va->create_record( ).
@@ -237,9 +232,7 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
     go_va_record = go_va_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterDisplayOnly' ).
     go_va_property = go_va_record->create_property( 'ValueListProperty' ).
     go_va_property->create_simple_value( )->set_property_path( iv_text_name ).
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->CONSTRUCTOR
@@ -254,7 +247,6 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
     gv_service_name = iv_service_name.
   ENDMETHOD.
 
-
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_AS_EMAIL
 * +-------------------------------------------------------------------------------------------------+
@@ -263,15 +255,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_as_email.
-
     TRY.
         go_entity = go_model->get_entity_type( iv_entity_name = iv_entity_name ).
         go_entity->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap )->add( iv_key = gc_semantics iv_value = gc_email ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_AS_TEXT
@@ -282,14 +271,11 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_as_text.
-
     TRY.
         go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap )->add( iv_key = gc_text iv_value = iv_property_description ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_AS_UNIT
@@ -300,15 +286,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_as_unit.
-
     TRY.
         go_entity = go_model->get_entity_type( iv_entity_name = iv_entity_name ).
         go_entity->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap )->add( iv_key = gc_unit iv_value = iv_property_unit ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_DISABLE_CONVERSION_EXIT
@@ -324,7 +307,6 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
 
-
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_DISPLAY_DATE
 * +-------------------------------------------------------------------------------------------------+
@@ -333,15 +315,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_display_date.
-
     TRY.
         go_annotation  = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_display_format iv_value = gc_date ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_DISPLAY_NON_NEGATIVE
@@ -351,15 +330,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_display_non_negative.
-
     TRY.
         go_annotation  = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_display_format iv_value = gc_non_negative ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_DISPLAY_UPPER_CASE
@@ -369,15 +345,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_display_upper_case.
-
     TRY.
         go_annotation  = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_display_format iv_value = gc_upper_case ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_DROP_DOWN_LIST
@@ -392,26 +365,21 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
     TRY.
         go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->set_value_list( /iwbep/if_mgw_odata_property=>gcs_value_list_type_property-fixed_values ).
 
-        me->set_as_text(
-          iv_entity_name          = iv_entity_name
-          iv_property             = iv_property
-          iv_property_description = iv_property_description
-        ).
+        me->set_as_text( iv_entity_name          = iv_entity_name
+                         iv_property             = iv_property
+                         iv_property_description = iv_property_description ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
 
     TRY.
         go_model->get_entity_set( iv_entity_set_name )->create_annotation( gc_sap )->add( iv_key = gc_semantics iv_value = gc_fixed_values ).
 
-        me->set_as_text(
-          iv_entity_name          = iv_entity_name
-          iv_property             = iv_property
-          iv_property_description = iv_property_description
-        ).
+        me->set_as_text( iv_entity_name          = iv_entity_name
+                         iv_property             = iv_property
+                         iv_property_description = iv_property_description ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_FILTERABLE
@@ -421,14 +389,11 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_filterable.
-
     TRY.
         go_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property )->set_filterable( abap_true ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_FILTER_INTERVAL
@@ -438,15 +403,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_filter_interval.
-
     TRY.
         go_annotation = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_filter_restriction iv_value = gc_interval ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_FILTER_MANDATORY
@@ -456,15 +418,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_filter_mandatory.
-
     TRY.
         go_annotation = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_required_in_filter iv_value = gc_true ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_FILTER_MULTI_VALUE
@@ -474,15 +433,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_filter_multi_value.
-
     TRY.
         go_annotation = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_filter_restriction iv_value = gc_multi_value ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_FILTER_SINGLE
@@ -492,15 +448,12 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_filter_single.
-
     TRY.
         go_annotation = go_model->get_entity_type( iv_entity_name )->get_property( iv_property )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap ).
         go_annotation->add( iv_key = gc_filter_restriction iv_value = gc_single_value ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_FUNCTION_IMPORT_TRIGGABLE
@@ -510,12 +463,10 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_function_import_triggable.
-
     TRY.
         go_model->get_action( iv_action_name = iv_action_name )->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap )->add( iv_key = gc_applicable_path iv_value = iv_property ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
@@ -526,14 +477,11 @@ CLASS ZCL_SM_MPC_UTIL IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
 METHOD set_function_import_property_nullable.
-
   TRY.
       go_model->get_action( iv_action_name = iv_action_name )->get_input_parameter( iv_name = iv_property )->set_nullable( iv_nullable = abap_true ).
     CATCH /iwbep/cx_mgw_med_exception  .
   ENDTRY.
-
 ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_LABEL
@@ -543,15 +491,12 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_label.
-
     TRY.
         go_property = go_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property ).
         go_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( iv_annotation_namespace = gc_sap )->add( iv_key = gc_label iv_value = 'SMERCAN' ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_LABEL_FROM_TEXT_ELEMENT
@@ -563,16 +508,13 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_label_from_text_element.
-
     TRY.
         go_property = go_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property ).
         go_property->set_label_from_text_element( EXPORTING iv_text_element_symbol = iv_text io_object_ref = io_object ).
         go_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap )->add( EXPORTING iv_key = gc_label iv_value = 'SMERCAN' ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_MEDIA
@@ -582,16 +524,13 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_media.
-
     TRY.
         go_entity = go_model->get_entity_type( iv_entity_name = iv_entity_name ).
         go_entity->set_is_media( iv_is_media = abap_true ).
         go_entity->get_property( iv_property_name = iv_property )->set_as_content_type( ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_NAME
@@ -601,21 +540,15 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_name.
-
     TRY.
         go_entity = go_model->get_entity_type( iv_entity_name = iv_entity_name ).
-        go_entity->add_auto_expand_include(
-          EXPORTING
-            iv_include_name     = 'ZSM_S_TST'
-            iv_dummy_field      = 'DUMMY'
-            iv_bind_conversions = 'X'
-            ).
+        go_entity->add_auto_expand_include( EXPORTING iv_include_name     = 'ZSM_S_TST'
+                                                      iv_dummy_field      = 'DUMMY'
+                                                      iv_bind_conversions = 'X' ).
         go_entity->get_property( iv_property_name = iv_property )->set_name( 'SMERCAN' ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_REQUIRED_FILTER
@@ -625,15 +558,12 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_required_filter.
-
     TRY.
         go_property = go_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property ).
         go_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( gc_sap )->add( iv_key = gc_required_in_filter iv_value = gc_true ).
       CATCH /iwbep/cx_mgw_med_exception.
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_SORTABLE
@@ -643,14 +573,11 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_sortable.
-
     TRY.
         go_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property )->set_sortable( abap_true ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_TREE_TABLE_PROPERTIES
@@ -664,7 +591,6 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_tree_table_properties.
-
     TRY.
         go_entity = go_model->get_entity_type( iv_entity_name = iv_entity_name ).
       CATCH /iwbep/cx_mgw_med_exception.
@@ -707,12 +633,8 @@ ENDMETHOD.
           CATCH /iwbep/cx_mgw_med_exception.
         ENDTRY.
       ENDIF.
-
     ENDIF.
-
-
   ENDMETHOD.
-
 
 * <SIGNATURE>---------------------------------------------------------------------------------------+
 * | Instance Public Method ZCL_SM_MPC_UTIL->SET_UPDATABLE
@@ -722,11 +644,9 @@ ENDMETHOD.
 * | [!CX!] /IWBEP/CX_MGW_MED_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD set_updatable.
-
     TRY.
         go_model->get_entity_type( iv_entity_name = iv_entity_name )->get_property( iv_property_name = iv_property )->set_updatable( abap_true ).
       CATCH /iwbep/cx_mgw_med_exception  .
     ENDTRY.
-
   ENDMETHOD.
 ENDCLASS.

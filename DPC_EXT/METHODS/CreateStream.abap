@@ -1,5 +1,4 @@
-  METHOD /iwbep/if_mgw_appl_srv_runtime~create_stream.
-  
+METHOD /iwbep/if_mgw_appl_srv_runtime~create_stream.
   DATA: lt_return      TYPE bapiret2_t,
         lv_content     TYPE xstring,
         lv_file_name   TYPE rsbfilename,
@@ -33,8 +32,7 @@
         TABLES
           et_return = lt_return.  
           
-      copy_data_to_ref( EXPORTING is_data = ls_data
-                         CHANGING cr_data = er_entity ).
+      copy_data_to_ref( EXPORTING is_data = ls_data CHANGING cr_data = er_entity ).
     ENDIF.
     
     IF line_exists( lt_return[ type = 'E' ] ).
@@ -46,5 +44,4 @@
     
     mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = lt_return
                                             					            iv_add_to_response_header = abap_true ).
-
-  ENDMETHOD.
+ENDMETHOD.

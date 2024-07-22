@@ -5,9 +5,8 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
 
   CASE io_tech_request_context->get_entity_type_name( ).
     WHEN 'Deep'.
-
-      DATA(ls_deep) = VALUE zsm_deep( ).
-      DATA lv_key TYPE char1.
+      DATA: ls_deep TYPE zsm_deep,
+            lv_key  TYPE char1.
 
       LOOP AT it_key_tab INTO DATA(is_key).
         CASE is_key-name.
@@ -27,7 +26,7 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
           et_return  = lt_returns.
 
       IF lv_error EQ abap_false.
-        DATA(ls_data)   = CORRESPONDING zcl_zsm_deep=>ts_deep( ls_header ).
+        ls_deep         = CORRESPONDING zcl_zsm_deep=>ts_deep( ls_header ).
         ls_data-items   = CORRESPONDING #( lt_items ).
         ls_data-objects = CORRESPONDING #( lt_objects ).
       ENDIF.
