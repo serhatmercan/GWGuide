@@ -27,144 +27,147 @@ METHOD define.
              lc_unit                 TYPE /iwbep/med_annotation_key   VALUE 'unit',
              lc_upper_case           TYPE /iwbep/med_annotation_value VALUE 'UpperCase'.
 
-  DATA(lo_action) = model->get_action( iv_action_name = 'GetPersonelInformation' ).
-  DATA(lo_entity) = model->get_entity_type( iv_entity_name = 'Header' ).
-  DATA(lv_property) = lo_entity->get_property( 'Key' ).
-  DATA(lo_annotation) = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap );
+  TRY.           
+    DATA(lo_action) = model->get_action( iv_action_name = 'GetPersonelInformation' ).
+    DATA(lo_entity) = model->get_entity_type( iv_entity_name = 'Header' ).
+    DATA(lv_property) = lo_entity->get_property( 'Key' ).
+    DATA(lo_annotation) = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap );
 
-  " Add Value Help
-  DATA(lo_va_target) = vocab_anno_model->create_annotations_target( '/SM/ZSM_ODATA_TEST_SRV.Header/Key' ).
-  DATA(lo_va) = lo_va_target->create_annotation( iv_term = 'com.sap.vocabularies.Common.v1.ValueList' ).
-  DATA(lo_va_record) = lo_va->create_record( ).
-  DATA(lo_va_property) = lo_va_record->create_property( 'CollectionPath' ).
-  DATA(lo_va_collection) = lo_va_record->create_property( 'Parameters' )->create_collection( ).
+    " Add Value Help
+    DATA(lo_va_target) = vocab_anno_model->create_annotations_target( '/SM/ZSM_ODATA_TEST_SRV.Header/Key' ).
+    DATA(lo_va) = lo_va_target->create_annotation( iv_term = 'com.sap.vocabularies.Common.v1.ValueList' ).
+    DATA(lo_va_record) = lo_va->create_record( ).
+    DATA(lo_va_property) = lo_va_record->create_property( 'CollectionPath' ).
+    DATA(lo_va_collection) = lo_va_record->create_property( 'Parameters' )->create_collection( ).
 
-  lo_va_property->create_simple_value( )->set_string( 'KeyVHSet' ).
+    lo_va_property->create_simple_value( )->set_string( 'KeyVHSet' ).
 
-  lo_va_record = lo_va_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterInOut' ).
-  lo_va_property = lo_va_record->create_property( 'LocalDataProperty' ).
-  lo_va_property->create_simple_value( )->set_property_path( 'Key' ).
-  lo_va_property = lo_va_record->create_property( 'ValueListProperty' ).
-  lo_va_property->create_simple_value( )->set_string( 'Key' ).
+    lo_va_record = lo_va_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterInOut' ).
+    lo_va_property = lo_va_record->create_property( 'LocalDataProperty' ).
+    lo_va_property->create_simple_value( )->set_property_path( 'Key' ).
+    lo_va_property = lo_va_record->create_property( 'ValueListProperty' ).
+    lo_va_property->create_simple_value( )->set_string( 'Key' ).
 
-  lo_va_record = lo_va_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterDisplayOnly' ).
-  lo_va_property = lo_va_record->create_property( 'ValueListProperty' ).
-  lo_va_property->create_simple_value( )->set_property_path( 'Text' ).  
-  
-  " Set as E-Mail
-  lo_annotation->add( iv_key = lc_semantics iv_value = lc_email ).
+    lo_va_record = lo_va_collection->create_record( 'com.sap.vocabularies.Common.v1.ValueListParameterDisplayOnly' ).
+    lo_va_property = lo_va_record->create_property( 'ValueListProperty' ).
+    lo_va_property->create_simple_value( )->set_property_path( 'Text' ).  
+    
+    " Set as E-Mail
+    lo_annotation->add( iv_key = lc_semantics iv_value = lc_email ).
 
-  " Set as Text (Key & Description)
-  lo_annotation->add( iv_key = lc_text iv_value = 'Description' ).
+    " Set as Text (Key & Description)
+    lo_annotation->add( iv_key = lc_text iv_value = 'Description' ).
 
-  " Set as Unit (Amount & Unit)
-  lo_annotation->add( iv_key = lc_unit iv_value = 'Unit' ).
+    " Set as Unit (Amount & Unit)
+    lo_annotation->add( iv_key = lc_unit iv_value = 'Unit' ).
 
-  " Set Disable Conversion Exit
-  lv_property->disable_conversion( ).
+    " Set Disable Conversion Exit
+    lv_property->disable_conversion( ).
 
-  " Set Display Date
-  lo_annotation->add( iv_key = lc_display_format iv_value = lc_date ).
+    " Set Display Date
+    lo_annotation->add( iv_key = lc_display_format iv_value = lc_date ).
 
-  " Set Display Non Negative
-  lo_annotation->add( iv_key = lc_display_format iv_value = lc_non_negative ).
+    " Set Display Non Negative
+    lo_annotation->add( iv_key = lc_display_format iv_value = lc_non_negative ).
 
-  " Set Display Upper Case
-  lo_annotation->add( iv_key = lc_display_format iv_value = lc_upper_case ).
+    " Set Display Upper Case
+    lo_annotation->add( iv_key = lc_display_format iv_value = lc_upper_case ).
 
-  " Set Drop Down List - I
-  lv_property->set_value_list( /iwbep/if_mgw_odata_property=>gcs_value_list_type_property-fixed_values ).
-  me->set_as_text( iv_entity_name = 'Header' iv_property = 'Key' iv_property_description = 'Description' ).
+    " Set Drop Down List - I
+    lv_property->set_value_list( /iwbep/if_mgw_odata_property=>gcs_value_list_type_property-fixed_values ).
+    me->set_as_text( iv_entity_name = 'Header' iv_property = 'Key' iv_property_description = 'Description' ).
 
-  " Set Drop Down List - II
-  model->get_entity_set( 'HeaderSet' )->create_annotation( lc_sap )->add( iv_key = lc_semantics iv_value = lc_fixed_values ).
-  me->set_as_text( iv_entity_name = 'Header' iv_property = 'Key' iv_property_description = 'Description' ).
+    " Set Drop Down List - II
+    model->get_entity_set( 'HeaderSet' )->create_annotation( lc_sap )->add( iv_key = lc_semantics iv_value = lc_fixed_values ).
+    me->set_as_text( iv_entity_name = 'Header' iv_property = 'Key' iv_property_description = 'Description' ).
 
-  " Set Filterable
-  lv_property->set_filterable( abap_true ).
+    " Set Filterable
+    lv_property->set_filterable( abap_true ).
 
-  " Set Filter Interval
-  lo_annotation->add( iv_key = lc_filter_restriction iv_value = lc_interval ).
+    " Set Filter Interval
+    lo_annotation->add( iv_key = lc_filter_restriction iv_value = lc_interval ).
 
-  " Set Filter Mandatory
-  lo_annotation->add( iv_key = lc_required_in_filter iv_value = lc_true ).
+    " Set Filter Mandatory
+    lo_annotation->add( iv_key = lc_required_in_filter iv_value = lc_true ).
 
-  " Set Filter Multi Value
-  lo_annotation->add( iv_key = lc_filter_restriction iv_value = lc_multi_value ).
+    " Set Filter Multi Value
+    lo_annotation->add( iv_key = lc_filter_restriction iv_value = lc_multi_value ).
 
-  " Set Filter Single
-  lo_annotation->add( iv_key = lc_filter_restriction iv_value = lc_single_value ).
+    " Set Filter Single
+    lo_annotation->add( iv_key = lc_filter_restriction iv_value = lc_single_value ).
 
-  " Set Function Import Triggable
-  lo_action->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap )->add( iv_key = lc_applicable_path iv_value = 'ID' ).
+    " Set Function Import Triggable
+    lo_action->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap )->add( iv_key = lc_applicable_path iv_value = 'ID' ).
 
-  " Set Function Import Property Nullable
-  lo_action->get_input_parameter( iv_name = 'ID' )->set_nullable( iv_nullable = abap_true ).
+    " Set Function Import Property Nullable
+    lo_action->get_input_parameter( iv_name = 'ID' )->set_nullable( iv_nullable = abap_true ).
 
-  " Set Label
-  lo_annotation->add( iv_key = lc_label iv_value = 'SMERCAN' ).
+    " Set Label
+    lo_annotation->add( iv_key = lc_label iv_value = 'SMERCAN' ).
 
-  " Set Label From Text Element (Text | 001)
-  lo_property->set_label_from_text_element( EXPORTING iv_text_element_symbol = 'Text' io_object_ref = me ).
-  lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap )->add( EXPORTING iv_key = lc_label iv_value = 'SMERCAN' ).
+    " Set Label From Text Element (Text | 001)
+    lo_property->set_label_from_text_element( EXPORTING iv_text_element_symbol = 'Text' io_object_ref = me ).
+    lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap )->add( EXPORTING iv_key = lc_label iv_value = 'SMERCAN' ).
 
-  " Set Media
-  lo_entity->set_is_media( iv_is_media = abap_true ).
-  lo_entity->get_property( iv_property_name = 'Mimetype' )->set_as_content_type( ).
+    " Set Media
+    lo_entity->set_is_media( iv_is_media = abap_true ).
+    lo_entity->get_property( iv_property_name = 'Mimetype' )->set_as_content_type( ).
 
-  " Set Name
-  lo_entity->add_auto_expand_include( EXPORTING iv_include_name     = 'ZSM_S_TST'
-                                                iv_dummy_field      = 'DUMMY'
-                                                iv_bind_conversions = 'X' ).
-  lv_property->set_name( 'SMERCAN' ).
+    " Set Name
+    lo_entity->add_auto_expand_include( EXPORTING iv_include_name     = 'ZSM_S_TST'
+                                                  iv_dummy_field      = 'DUMMY'
+                                                  iv_bind_conversions = 'X' ).
+    lv_property->set_name( 'SMERCAN' ).
 
-  " Set Required Filter
-  lo_annotation->add( iv_key = lc_required_in_filter iv_value = lc_true ).
+    " Set Required Filter
+    lo_annotation->add( iv_key = lc_required_in_filter iv_value = lc_true ).
 
-  " Set Sortable
-  lv_property->set_sortable( abap_true ).
+    " Set Sortable
+    lv_property->set_sortable( abap_true ).
 
-  " Set Tree Table Properties
-  IF lo_entity IS BOUND.
-    TRY.
-      lv_property = lo_entity->get_property( 'Header' ).
-      lo_annotation = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
-      lo_annotation->add( iv_key = lc_node_for iv_value = 'NodeID' ).
-    CATCH /iwbep/cx_mgw_med_exception.
-    ENDTRY.
+    " Set Tree Table Properties
+    IF lo_entity IS BOUND.
+      TRY.
+        lv_property = lo_entity->get_property( 'Header' ).
+        lo_annotation = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
+        lo_annotation->add( iv_key = lc_node_for iv_value = 'NodeID' ).
+      CATCH /iwbep/cx_mgw_med_exception.
+      ENDTRY.
 
-    TRY.
-      lv_property = lo_entity->get_property( 'Level' ).
-      lo_annotation = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
-      lo_annotation->add( iv_key = lc_level_for iv_value = 'NodeID' ).
-    CATCH /iwbep/cx_mgw_med_exception.
-    ENDTRY.
-  
-    TRY.
-      lv_property = lo_entity->get_property( 'Parent' ).
-      lo_annotation = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
-      lo_annotation->add( iv_key = lc_parent_node_for iv_value = 'NodeID' ).
-    CATCH /iwbep/cx_mgw_med_exception.
-    ENDTRY.
-  
-    TRY.
-      lo_property = lo_entity->get_property( 'Drill' ).
-      lo_annotation = lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
-      lo_annotation->add( iv_key = lc_drill_state_for iv_value = 'NodeID' ).
-    CATCH /iwbep/cx_mgw_med_exception.
-    ENDTRY.
-  
-    " Extra
-    TRY.
-      lo_property = lo_entity->get_property( 'Magnitute' ).
-      lo_annotation = lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
-      lo_annotation->add( iv_key = lc_descendant_count_for iv_value = 'NodeID' ).
-    CATCH /iwbep/cx_mgw_med_exception.
-    ENDTRY.
-  ENDIF.
+      TRY.
+        lv_property = lo_entity->get_property( 'Level' ).
+        lo_annotation = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
+        lo_annotation->add( iv_key = lc_level_for iv_value = 'NodeID' ).
+      CATCH /iwbep/cx_mgw_med_exception.
+      ENDTRY.
+    
+      TRY.
+        lv_property = lo_entity->get_property( 'Parent' ).
+        lo_annotation = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
+        lo_annotation->add( iv_key = lc_parent_node_for iv_value = 'NodeID' ).
+      CATCH /iwbep/cx_mgw_med_exception.
+      ENDTRY.
+    
+      TRY.
+        lo_property = lo_entity->get_property( 'Drill' ).
+        lo_annotation = lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
+        lo_annotation->add( iv_key = lc_drill_state_for iv_value = 'NodeID' ).
+      CATCH /iwbep/cx_mgw_med_exception.
+      ENDTRY.
+    
+      " Extra
+      TRY.
+        lo_property = lo_entity->get_property( 'Magnitute' ).
+        lo_annotation = lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
+        lo_annotation->add( iv_key = lc_descendant_count_for iv_value = 'NodeID' ).
+      CATCH /iwbep/cx_mgw_med_exception.
+      ENDTRY.
+    ENDIF.
 
-  " Set Updatable
-  lv_property->set_updatable( abap_true ).
+    " Set Updatable
+    lv_property->set_updatable( abap_true ).
+  CATCH /iwbep/cx_mgw_med_exception INTO DATA(lo_exception).
+  ENDTRY.
 ENDMETHOD.
 
 " Define w/ Util Class
