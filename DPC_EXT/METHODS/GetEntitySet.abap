@@ -167,7 +167,7 @@ ENDMETHOD.
 " cv_property TYPE string (optional)
 METHOD convert_property_field.
   DATA(lo_regex_pattern) = cl_abap_regex=>create_pcre( pattern = `[A-Z]{1}[a-z]+` ).
-  DATA(lo_matcher) = regex_pattern->create_matcher( text = cv_property ).
+  DATA(lo_matcher) = lo_regex_pattern->create_matcher( text = cv_property ).
   DATA lv_formatted_text TYPE string.
 
   WHILE lo_matcher->find_next( ).

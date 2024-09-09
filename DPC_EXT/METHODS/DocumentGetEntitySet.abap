@@ -19,6 +19,7 @@ METHOD documentset_get_entityset.
 
       LOOP AT et_entityset ASSIGNING FIELD-SYMBOL(<fs_data>).
         <fs_data>-url = |/sap/opu/odata/sap/ZSM_SRV/...Set('{ <fs_data>-key }')/Documents('{ <fs_data>-guid }')/$value|.
+        <fs_data>-url = |/sap/opu/odata/sap/ZSM_SRV/DocumentSet(FileId='{ <fs_data>-file_id }',TorId='{ <fs_data>-tor_id }')/$value|.
       ENDLOOP.
     CATCH /iwbep/cx_mgw_busi_exception INTO DATA(lx_busi_exception).
     CATCH /iwbep/cx_mgw_tech_exception INTO DATA(lx_tech_exception).
