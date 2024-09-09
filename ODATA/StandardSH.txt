@@ -35,6 +35,7 @@ Vkbur	Vkorg	H_TVKBZ	& H_TVBUR		Sales Office (Satış Organizasyonu Dağıtım Ka
 Vkgrp	Vkbur	H_TVBVK					Sales Group (Satış Bürosu)
 Vkorg		    H_TVKO					Sales Organization (Organizasyonu) (SalesOrganizationVH)
 Vkorg	Bukrs	FAGL_ELM_VKORG_BUKRS    Sales Organization w/ Company Code (Satış Organizasyonu + Şirket Kodu) 
+Vtweg		    H_TVTW					Distribution Channel (Dağıtım Kanalı)
 Vtweg	Vkorg	H_TVKOV					Distribution Channel w/ Sales Organization (Dağıtım Kanalı + Satış Organizasyonu)
 Waers       	FC_WAERS    			Currency (Para Birimi)
 Werks			H_NAME1	    			Production Place (Üretim Yeri)

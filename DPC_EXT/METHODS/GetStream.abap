@@ -12,7 +12,7 @@
 
     CASE io_tech_request_context->get_entity_type_name( ).
       WHEN 'Document'.
-    	  lv_document_id = it_key_tab[ name = 'DocumentID' ]-value.
+    	  lv_document_id = VALUE #( it_key_tab[ name = 'DocumentID' ]-value OPTIONAL ).
     	
     	  CALL FUNCTION 'ZSM_GET_DMS'
           EXPORTING
