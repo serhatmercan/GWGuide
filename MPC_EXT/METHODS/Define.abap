@@ -1,3 +1,21 @@
+" Define Date
+METHOD define.
+  super->define( ).
+
+  CONSTANTS: lc_date           TYPE /iwbep/med_annotation_value VALUE 'Date',
+             lc_display_format TYPE /iwbep/med_annotation_key   VALUE 'display-format',
+             lc_sap            TYPE /iwbep/med_anno_namespace   VALUE 'sap'.
+
+  TRY.
+      DATA(lo_entity) = model->get_entity_type( iv_entity_name = 'Header' ).
+      DATA(lv_property) = lo_entity->get_property( 'Key' ).
+      DATA(lo_annotation) = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
+
+      lo_annotation->add( iv_key = lc_display_format iv_value = lc_date ).
+    CATCH /iwbep/cx_mgw_med_exception.
+  ENDTRY.
+ENDMETHOD.
+
 " Define in Method
 METHOD define.
 	super->define( ).
@@ -31,7 +49,7 @@ METHOD define.
     DATA(lo_action) = model->get_action( iv_action_name = 'GetPersonelInformation' ).
     DATA(lo_entity) = model->get_entity_type( iv_entity_name = 'Header' ).
     DATA(lv_property) = lo_entity->get_property( 'Key' ).
-    DATA(lo_annotation) = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap );
+    DATA(lo_annotation) = lv_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap ).
 
     " Add Value Help
     DATA(lo_va_target) = vocab_anno_model->create_annotations_target( '/SM/ZSM_ODATA_TEST_SRV.Header/Key' ).
