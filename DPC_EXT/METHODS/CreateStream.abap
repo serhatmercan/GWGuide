@@ -41,6 +41,16 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~create_stream.
                                                    it_return      = lt_return ).
       RETURN.
     ENDIF.
+
+    " Custom Return Message
+    IF line_exists( lt_return[ type = 'E' ] ).
+      DATA(ls_return) = VALUE #( lt_return[ 1 ] OPTIONAL ).
+
+      set_header( is_header = VALUE ihttpnvp( name = 'Type'    value = 'E'               ) ).
+      set_header( is_header = VALUE ihttpnvp( name = 'ID'      value = ls_return-id      ) ).
+      set_header( is_header = VALUE ihttpnvp( name = 'Number'  value = ls_return-number  ) ).
+      set_header( is_header = VALUE ihttpnvp( name = 'Message' value = ls_return-message ) ).
+    ENDIF.
     
     mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = lt_return
                                             					            iv_add_to_response_header = abap_true ).

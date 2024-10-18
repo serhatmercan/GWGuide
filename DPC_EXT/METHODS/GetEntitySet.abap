@@ -61,9 +61,8 @@ METHOD xxxset_get_entityset.
   /iwbep/cl_mgw_data_util=>filtering( EXPORTING it_select_options = it_filter_select_options CHANGING ct_data = et_entityset ).
   
   " Inline Count
-  es_response_context-inlinecount = COND #( WHEN io_tech_request_context->has_inlinecount( ) EQ abap_true
-                                            THEN lines( et_entityset )
-                                            ELSE 0 ).
+  es_response_context-inlinecount = COND #( WHEN io_tech_request_context->has_inlinecount( ) EQ abap_true THEN lines( et_entityset )
+                                                                                                          ELSE 0 ).
                                               
   " Paging
   /iwbep/cl_mgw_data_util=>paging( EXPORTING is_paging = is_paging CHANGING ct_data = et_entityset ).
