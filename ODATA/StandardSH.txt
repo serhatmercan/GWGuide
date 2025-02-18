@@ -42,20 +42,33 @@ Werks			H_NAME1	    			Production Place (Üretim Yeri)
 Werks           H_T001W                 Production Place (Üretim Yeri)
 
 Custom SH
-Key     Text    Selection Method    Text Table     Description
-Arbpl               CRHD                            Work Center (İş Yeri)
-Bname               USR02                           User Name (Kullanıcı Adı)
-Bukrs   Butxt       T001                            Company Code (İş Yeri Kodu)
-Ingrp               T024I                           Maintenance Planner Group (Planlama Grubu)
-Kunnr   Name1       KNA1                            Customer (Müşteri) 
-Kurst   Curvw       TCURV               TCURW       Rate Type (Kur Tipi)
-Vkgrp               TVKGR                           Sales Group (Satış Grubu)
-Vkorg               TVKO                            Sales Organization (Satış organizasyonu)
-Vtweg   Vtext       TVTW                TVTWT       Distribution Channel (Dağıtım Kanalı)
-Werks   Name1       T001W                           Production Place (Üretim Yeri)
-
-CDS Entity VH
-Key     Name            Element     Description                      
-CUKY5   I_Currency      Currency    Currency Code
-Kunnr   I_Customer_VH   Customer    Customer
-
+Key     Text    Selection Method    Text Table      Description (EN)            Description (TR)
+Arbpl               CRHD                            Work Center                 (İş Yeri)
+Auart   Bezei                           TVAKT       Sales Document Type         (Satış Belgesi Türü)
+Bname               USR02                           User Name                   (Kullanıcı Adı)
+Bukrs   Butxt       T001                            Company Code                (İş Yeri Kodu)
+Bzirk   Bztxt       T171                T171T       Sales District              (Müşteri Bölgesi)
+Extwg   Ewbez       TWEW                TWEWT       External Material Group     (Harici Mal Grubu)
+Fkart   Vtext       TVFK                TVFKT       Billing Type                (Faturalama Türü)
+Inco1   Bezei       TINC                TINCT       Incoterms
+Ingrp               T024I                           Maintenance Planner Group   (Planlama Grubu)
+Kdgrp   Ktext       T151                T151T       Customer Group              (Müşteri Grubu)
+Konda   Vtext       T188                T188T       Customer Price Group        (Müşteri Fiyat Grubu)
+Kontrh  Name_org1   BUT000                          Payment Bank                (Ödeme Bankası)
+Kunnr   Name1       KNA1                            Customer                    (Müşteri) 
+Kurst   Curvw       TCURV               TCURW       Rate Type                   (Kur Tipi)
+Land1   Landx       T005                T005T       Country / Region Key        (Ülke / Bölge Anahtarı)
+Lgort   Lgobe                           T001L       Warehouse                   (Depo Yeri)
+Matkl   Wgbez       T023                T023T       Material Group              (Mal Grubu)
+Matnr   Maktx                           MAKT        Material                    (Malzeme)
+Mtart   Mtbez       T134                T134T       Meterial Type               (Malzeme Türü)
+Pltyp   Ptext       T189                T189T       Price List                  (Fiyat Listesi)
+Prodh   Vtext       T179                T179T       Product Hierarchy           (Ürün Hiyerarşisi)
+Stawn   Text1       T604                T604T       Commodity Code              (İstatistiksel Mal Numarası)
+Traty   Vtext       TVTY                TVTYT       Packaging Material Type     (Ambalaj Malzemesi Türü)
+Vkbur   Bezei                           TVKBT       Sales Office                (Satış Ofisi)
+Vkgrp   Bezei       TVKGR               TVGRT       Sales Group                 (Satış Grubu)
+Vkorg               TVKO                TVKOT       Sales Organization          (Satış Organizasyonu)
+Vtweg   Vtext       TVTW                TVTWT       Distribution Channel        (Dağıtım Kanalı)
+Waers   Ktext       TCURC               TCURT       Currency                    (Para Birimi)
+Werks   Name1       T001W                           Production Place            (Üretim Yeri)

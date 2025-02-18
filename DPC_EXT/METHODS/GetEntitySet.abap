@@ -63,6 +63,9 @@ METHOD xxxset_get_entityset.
   " Inline Count
   es_response_context-inlinecount = COND #( WHEN io_tech_request_context->has_inlinecount( ) EQ abap_true THEN lines( et_entityset )
                                                                                                           ELSE 0 ).
+
+  " Inline Count II
+  DESCRIBE TABLE et_entityset LINES es_response_context-inlinecount.                                                                                                   
                                               
   " Paging
   /iwbep/cl_mgw_data_util=>paging( EXPORTING is_paging = is_paging CHANGING ct_data = et_entityset ).
