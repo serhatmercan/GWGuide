@@ -15,3 +15,14 @@ lo_message_container->add_messages_from_bapi( it_bapi_messages 			= lt_return
                                               iv_add_to_response_header = abap_true ).
 
 RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception EXPORTING message_container = lo_message_container.
+
+" Add Message To Message Container
+CALL METHOD lo_message_container->add_message
+  EXPORTING
+    iv_msg_type   = /iwbep/cl_cos_logger=>error
+    iv_msg_id     = 'ZSM_M_01'
+    iv_msg_v1     = CONV #( lv_tabix )
+    iv_msg_v2     = CONV #( ls_map-colex )
+    iv_msg_v3     = CONV #( <fs> )
+    iv_msg_v4     = CONV #( '13.11.2024' )
+    iv_msg_number = '001'. " &1. satırın &2 sütunundaki tarih formatta hata var (&3) Örnek Format &4
