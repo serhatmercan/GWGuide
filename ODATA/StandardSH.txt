@@ -47,6 +47,7 @@ Arbpl               CRHD                            Work Center                 
 Auart   Bezei                           TVAKT       Sales Document Type         (Satış Belgesi Türü)
 Bname               USR02                           User Name                   (Kullanıcı Adı)
 Bukrs   Butxt       T001                            Company Code                (İş Yeri Kodu)
+Bsart   Batxt       T161                T161T       Purchasing Document Type    (Satınalma Belgesi Türü)   
 Bzirk   Bztxt       T171                T171T       Sales District              (Müşteri Bölgesi)
 Extwg   Ewbez       TWEW                TWEWT       External Material Group     (Harici Mal Grubu)
 Fkart   Vtext       TVFK                TVFKT       Billing Type                (Faturalama Türü)
