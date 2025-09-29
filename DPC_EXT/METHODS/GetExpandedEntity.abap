@@ -29,6 +29,10 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
         ls_deep         = CORRESPONDING zcl_zsm_deep=>ts_deep( ls_header ).
         ls_data-items   = CORRESPONDING #( lt_items ).
         ls_data-objects = CORRESPONDING #( lt_objects ).
+
+        APPEND VALUE #( CORRESPONDING zcl_zsm_deep=>ts_deep( ls_header )
+                        items = CORRESPONDING #( lt_items )
+                        objects = CORRESPONDING #( lt_objects ) ) TO ls_deep.
       ENDIF.
 
       copy_data_to_ref( EXPORTING is_data = ls_data CHANGING cr_data = er_entity ).

@@ -30,10 +30,14 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
           et_return  = lt_returns.
 
       IF lv_error EQ abap_false.
-    	APPEND INITIAL LINE TO ls_deep ASSIGNING FIELD-SYMBOL(<fs_data>).
+    	  APPEND INITIAL LINE TO ls_deep ASSIGNING FIELD-SYMBOL(<fs_data>).
         <fs_data>   		  = CORRESPONDING #( ls_header ).
         <fs_data>-items   = CORRESPONDING #( lt_items ).
         <fs_data>-objects = CORRESPONDING #( lt_objects ).
+
+        APPEND VALUE #( CORRESPONDING #( ls_header )
+                        items = CORRESPONDING #( lt_items )
+                        objects = CORRESPONDING #( lt_objects ) ) TO ls_deep.
       ENDIF.
 
       copy_data_to_ref( EXPORTING is_data = ls_deep CHANGING cr_data = er_entityset ).

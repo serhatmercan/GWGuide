@@ -49,7 +49,7 @@ METHOD xxxset_get_entityset.
 
   IF line_exists( it_filter_select_options[ property = 'Matnr' ] ).
     lr_matnr = VALUE #( FOR ls_select IN it_filter_select_options[ property = 'Matnr' ]-select_options 
-                        ( sign = 'I' option = 'EQ' low = ls_select-low high = ls_select-high ) ).
+                        ( sign = 'I' option = 'EQ' low = |{ ls_select-low ALPHA = IN }| high = |{ ls_select-high ALPHA = IN }| ) ).
   ENDIF.
   
   SELECT *
@@ -208,6 +208,7 @@ METHOD valuehelpset_get_entityset.
           LOOP AT lr_pernr INTO DATA(ls_pernr).
             APPEND VALUE #( sign = ls_pernr-sign option = ls_pernr-option low = ls_pernr-low high = ls_pernr-high shlpname = 'PM02' shlpfield = 'PERNR' ) TO lt_selopt.
           ENDLOOP.
+        ENDCASE.
     ENDLOOP.
   ENDLOOP.
 
