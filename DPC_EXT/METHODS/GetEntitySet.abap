@@ -93,15 +93,13 @@ METHOD xxxset_get_entityset.
   ls_paging-top = io_tech_request_context->get_top( ).
 
   LOOP AT lt_filter_select_options INTO DATA(ls_filter).
-    LOOP AT ls_filter-select_options INTO DATA(ls_filter_range).
-      CASE ls_filter-property.
-        WHEN 'NAME_FIRST'.
-          lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter IMPORTING et_select_option = lr_name_first ).
-        WHEN 'UNAME'.
-          lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter IMPORTING et_select_option = lr_user_uname ).
-          lv_username = VALUE #( lr_user_uname[ 1 ]-low OPTIONAL ).
-      ENDCASE.
-    ENDLOOP.
+    CASE ls_filter-property.
+      WHEN 'NAME_FIRST'.
+        lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter IMPORTING et_select_option = lr_name_first ).
+      WHEN 'UNAME'.
+        lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter IMPORTING et_select_option = lr_user_uname ).
+        lv_username = VALUE #( lr_user_uname[ 1 ]-low OPTIONAL ).
+    ENDCASE.
   ENDLOOP.
 
   TRY.
