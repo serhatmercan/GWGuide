@@ -14,6 +14,7 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
   lo_parameters = io_tech_request_context->get_parameters( ).
 
   IF iv_action_name EQ 'GetData'.
+    DATA(lv_customer) = CONV #( VALUE #( lo_parameters[ name = 'CUSTOMER' ]-value OPTIONAL ) ).
     ls_deep-key = VALUE #( lo_parameters[ name = 'KEY' ]-value OPTIONAL ).
 
     CALL FUNCTION 'ZSM_F_DATA'

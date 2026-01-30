@@ -3,15 +3,12 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~create_deep_entity.
 	DATA lt_return TYPE bapiret2_t.
 
   IF iv_entity_name EQ 'Header'.
-
-    DATA: ls_deep 	TYPE zcl_zsm_mpc_ext=>ts_deep,
-          ls_header TYPE zsm_s_header,
-          lt_items	TYPE TABLE OF zsm_s_header.
+    DATA ls_deep TYPE zcl_zsm_mpc_ext=>ts_deep.
 
     io_data_provider->read_entry_data( IMPORTING es_data = ls_deep ).
 	
-    ls_header	= CORRESPONDING #( ls_deep ).
-    lt_items	= CORRESPONDING #( ls_deep-items ).
+    DATA(ls_header)	= CORRESPONDING zsm_s_header( ls_deep ).
+    DATA(lt_items)	= CORRESPONDING zsm_tt_item( ls_deep-items ).
 
     CALL FUNCTION 'ZSM_F_DATA'
       EXPORTING
@@ -29,6 +26,5 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~create_deep_entity.
 	    mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages = lt_return iv_add_to_response_header = abap_true ).
       me->/iwbep/if_sb_dpc_comm_services~commit_work( ).
       copy_data_to_ref( EXPORTING is_data = ls_deep CHANGING cr_data = er_deep_entity ).
-	
    ENDIF.
 ENDMETHOD.

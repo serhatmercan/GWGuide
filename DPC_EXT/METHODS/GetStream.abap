@@ -2,7 +2,6 @@
     DATA: ls_meta        TYPE sfpmetadata,
           ls_stream      TYPE ty_s_media_resource,
           lv_content     TYPE xstring,
-          lv_document_id TYPE doknr,
           lv_file_name   TYPE rsbfilename,
           lv_mime_type   TYPE nte_mimetype VALUE 'application/pdf',
           lv_out_type    TYPE string VALUE 'attachment', "inline" "outline".
@@ -12,7 +11,7 @@
 
     CASE io_tech_request_context->get_entity_type_name( ).
       WHEN 'Document'.
-    	  lv_document_id = VALUE #( it_key_tab[ name = 'DocumentID' ]-value OPTIONAL ).
+    	  DATA(lv_document_id) = CONV doknr( VALUE #( it_key_tab[ name = 'DocumentID' ]-value OPTIONAL ) ).
     	
     	  CALL FUNCTION 'ZSM_GET_DMS'
           EXPORTING
