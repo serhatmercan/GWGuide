@@ -46,7 +46,17 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_entityset.
         /iwbep/cl_mgw_data_util=>orderby( EXPORTING it_order = lt_order CHANGING ct_data = <fs_entityset> ).
       ENDIF.
     CATCH /iwbep/cx_mgw_busi_exception.
+      DATA(lo_msg_container) = me->/iwbep/if_mgw_conv_srv_runtime~get_message_container( ).
+      
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = lo_msg_container.        
     CATCH /iwbep/cx_mgw_tech_exception.
+      lo_msg_container = me->/iwbep/if_mgw_conv_srv_runtime~get_message_container( ).
+      
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = lo_msg_container. 
   ENDTRY.
 ENDMETHOD.
 
