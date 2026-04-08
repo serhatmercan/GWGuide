@@ -8,6 +8,11 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
       DATA: ls_deep TYPE zsm_deep,
             lv_key  TYPE char1.
 
+      READ TABLE it_key_tab INTO DATA(ls_key) WITH KEY name = 'Key'.
+      IF sy-subrc EQ 0.
+        DATA(lv_filter) = CONV char1( |{ ls_key-value ALPHA = IN }| ).
+      ENDIF.      
+
       LOOP AT it_key_tab INTO DATA(is_key).
         CASE is_key-name.
           WHEN 'Key'.
@@ -30,9 +35,9 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
         ls_data-items   = CORRESPONDING #( lt_items ).
         ls_data-objects = CORRESPONDING #( lt_objects ).
 
-        APPEND VALUE #( CORRESPONDING zcl_zsm_deep=>ts_deep( ls_header )
-                        items = CORRESPONDING #( lt_items )
-                        objects = CORRESPONDING #( lt_objects ) ) TO ls_deep.
+        DATA(ls_deep) = VALUE zcl_zsm_001_mpc_ext=>zsm_deep( BASE CORRESPONDING #( ls_header )
+                                                             items    = CORRESPONDING #( lt_items )
+                                                             objects  = CORRESPONDING #( lt_objects ) ).                        
       ENDIF.
 
       copy_data_to_ref( EXPORTING is_data = ls_data CHANGING cr_data = er_entity ).

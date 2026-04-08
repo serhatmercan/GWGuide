@@ -1,21 +1,21 @@
 METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
   DATA: lo_message     TYPE REF TO /iwbep/if_message_container,
-        lo_parameters  TYPE REF TO /iwbep/if_mgw_parameter,
         ls_parameter   TYPE /iwbep/s_mgw_name_value_pair,          
         ls_deep	       TYPE zcl_zsm_mpc_ext=>ts_deep,          
         ls_value       TYPE zsm_s_value,
         lt_deep        TYPE STANDARD TABLE OF zcl_zsm_mpc_ext=>ts_deep,
+        lt_parameters  TYPE REF TO /iwbep/if_mgw_parameter,
         lt_return      TYPE bapiret2_tab.
 
   lo_message = me->mo_context->get_message_container( ).
 
   io_tech_request_context->get_converted_parameters( IMPORTING es_parameter_values = ls_value ).
   
-  lo_parameters = io_tech_request_context->get_parameters( ).
+  lt_parameters = io_tech_request_context->get_parameters( ).
 
   IF iv_action_name EQ 'GetData'.
-    DATA(lv_customer) = CONV #( VALUE #( lo_parameters[ name = 'CUSTOMER' ]-value OPTIONAL ) ).
-    ls_deep-key = VALUE #( lo_parameters[ name = 'KEY' ]-value OPTIONAL ).
+    DATA(lv_customer) = CONV #( VALUE #( lt_parameters[ name = 'CUSTOMER' ]-value OPTIONAL ) ).
+    ls_deep-key = VALUE #( lt_parameters[ name = 'KEY' ]-value OPTIONAL ).
 
     CALL FUNCTION 'ZSM_F_DATA'
       EXPORTING
@@ -41,5 +41,17 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
     mo_context->get_message_container( )->add_messages_from_bapi( it_bapi_messages          = lt_return
                                           						            iv_add_to_response_header = abap_true ).                
 
+  ENDIF.
+ENDMETHOD.
+
+METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
+  DATA(lt_parameters) = io_tech_request_context->get_parameters( ).
+
+  IF iv_action_name EQ 'CheckPA'.
+    DATA(lv_material) = CONV matnr( VALUE #( lt_parameters[ name = 'MATERIAL' ]-value OPTIONAL ) ).
+    DATA(ls_pa_exist) = VALUE zcl_zsm_mpc_ext=>paexist( material = lv_material
+                                                        exist    = NEW zsm_cl_pa( )->check_is_there_pa( iv_material = lv_material ) ).
+
+    copy_data_to_ref( EXPORTING is_data = ls_pa_exist CHANGING cr_data = er_data ).
   ENDIF.
 ENDMETHOD.
