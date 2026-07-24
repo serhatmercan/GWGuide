@@ -1,7 +1,7 @@
-DATA: lr_request_ctx TYPE REF TO /iwbep/cl_mgw_request,
-      ls_request     TYPE /iwbep/if_mgw_core_srv_runtime=>ty_s_mgw_request_context,
-      lv_jsessionid  TYPE ztm_jsessionid,
-      lv_username    TYPE xubname.
+DATA lr_request_ctx TYPE REF TO /iwbep/cl_mgw_request.
+DATA ls_request     TYPE /iwbep/if_mgw_core_srv_runtime=>ty_s_mgw_request_context.
+DATA lv_jsessionid  TYPE ztm_jsessionid.
+DATA lv_username    TYPE xubname.
 
 lr_request_ctx ?= io_tech_request_context.
 ls_request = lr_request_ctx->get_request_details( ).
