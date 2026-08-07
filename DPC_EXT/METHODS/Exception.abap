@@ -1,3 +1,4 @@
+" Reusable business-exception / message-container patterns (log to /IWBEP/ERROR_LOG via rfc_save_log, raise busi exception)
 DATA lo_message_container TYPE REF TO /iwbep/if_message_container.
 DATA lt_return            TYPE bapiret2_t.
 

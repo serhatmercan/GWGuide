@@ -1,3 +1,4 @@
+  " GET_EXPANDED_ENTITY: custom $expand handling for a single deep entity, falls back to super for other entity types
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
     DATA(lt_returns) = VALUE bapiret2_t( ).
     DATA(lv_error)   = abap_false.

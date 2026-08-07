@@ -1,3 +1,4 @@
+  " GET_ENTITY: read single entity by key, two approaches to reading keys
   METHOD xxxset_get_entity.
     " Read Data - I
     DATA(ls_data) = VALUE zcl_zsm_mpc=>ts_xxx( ).

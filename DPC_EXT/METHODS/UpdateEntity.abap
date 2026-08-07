@@ -1,12 +1,13 @@
+  " UPDATE_ENTITY: read back the updated entry and add a success message
   METHOD xxx_update_entity.
     " ------------------------
-    " - Read After Create   
+    " - Read After Update   
     " ------------------------
     TRY.
         DATA ls_data   TYPE LINE OF er_entity.
         DATA lt_return TYPE bapiret2_t.
 
-        DATA(lo_message_container) = mo_context->get_message_container( )
+        DATA(lo_message_container) = mo_context->get_message_container( ).
 
         io_data_provider->read_entry_data( IMPORTING es_data = ls_data ).
 
@@ -24,8 +25,9 @@
     ENDTRY.
   ENDMETHOD.
 
+  " UPDATE_ENTITY: RFC/BAPI-based update via remote destination, with save log and commit_work
   METHOD xxx_update_entity.
-    DATA lo_dp_facade   TYPE REF TO /iwbep/if_mgw_dp_facade.
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA ls_data        TYPE zcl_zsm_tst_mpc=>ts_main.
     DATA ls_keys        TYPE zcl_zsm_tst_mpc=>ts_keys.
     DATA lt_return      TYPE bapiret2_t.
@@ -34,7 +36,6 @@
     DATA lv_rfc_name    TYPE tfdir-funcname.
     DATA lx_root        TYPE REF TO cx_root.
     DATA lv_username    TYPE syuname.
-    DATA.
 
     io_data_provider->read_entry_data( IMPORTING es_data = ls_data ).
 
@@ -60,7 +61,7 @@
     ELSE.
       CALL FUNCTION lv_rfc_name
         DESTINATION lv_destination
-        EXPORTING  iv_uname              = lv_uname
+        EXPORTING  iv_uname              = lv_username
         TABLES     et_return             = lt_return
         EXCEPTIONS system_failure        = 1000 MESSAGE lv_exc_msg
                    communication_failure = 1001 MESSAGE lv_exc_msg

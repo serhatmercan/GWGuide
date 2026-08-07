@@ -1,3 +1,4 @@
+  " GET_ENTITYSET runtime enrichment: super call then apply $orderby via three alternative sorting strategies
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_entityset.
     TRY.
         FIELD-SYMBOLS <fs_entityset> TYPE table.

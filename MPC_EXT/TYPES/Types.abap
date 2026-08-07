@@ -1,3 +1,4 @@
+" Deep-entity type definitions used by CreateDeepEntity / GetExpandedEntity(Set): header + nested items/objects, and a 2-level (header->items->details) variant
 CLASS zcl_zsm_mpc_ext DEFINITION
   PUBLIC
   INHERITING FROM zcl_zsm_mpc
