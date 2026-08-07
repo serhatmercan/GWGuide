@@ -1,0 +1,47 @@
+# Standard Search Helps (Multi-field / Composite)
+
+Standard SAP elementary/collective search helps (SHLP) used as value helps for OData properties, often keyed together with a related field (e.g. plant + material). Source data preserved in [StandardSH.txt](StandardSH.txt).
+
+| Field(s) | Search Help | Description |
+|---|---|---|
+| Auart | H_TVAK | Order Types (Sipariş Türleri) |
+| Aufnr | ORDEA | Controlling Area & Processing Group (Kontrol Kodu & İşlem Grubu) |
+| Banfn | MBANA | Purchase Requisitions Per Asset (Satınalma Talepleri -> Duran Varlık) |
+| Bsart | H_T161 | Document Type (Belge Türü) |
+| Bukrs | H_T001 | Company Code (Şirket Kodu) (CompanyCodeVH) |
+| Bu_Partner | BUPAP | Partner (Muhatap) |
+| Bzirk | H_T171 | Sales District (Müşteri Bölgesi) |
+| Charg | H_MCHA | Material Number & Plant & Batch VH (Malzeme Numarası & Üretim Yeri & Parti SH) |
+| Ebeln | MEKKA | Purchasing Documents Per Asset (Satınalma belgeleri -> Duran Varlık) |
+| Ekgrp | H_T024 | Purchasing Group (Satınalma Grubu) |
+| Ekorg | H_T024E | Purchasing Organization (Satınalma Organizasyonu) |
+| Fkart | H_TVFK | Billing Type (Faturalama Türü) |
+| Gsber | H_TGSB | Business Area (İş Alanı) |
+| Katr1 | H_TVK1 | Attribute (Nitelik) (AttributeVH) |
+| Kdgrp | H_T151 | Customer Group (Müşteri Grubu) (CustomerGroupVH) |
+| Ktgrd | H_TVKT | Account Assignment Group Customer (Müşteri Tayin Grubu Hesabı) (AccountAsmtGrCustVH) |
+| Ktokd | H_T077D | Customer Account Group (Müşteri Hesap Grubu) (AccountGroupVH) |
+| Kunnr | DEBIA | Customer (Müşteri) (CustomerVH) |
+| Kunnr | H_KNA1 | Customer w/out Production Place From KNA1 (Müşteri) |
+| Lgort | H_T001L_ | Warehouse (Depo Yeri) |
+| Lgort, Werks | H_T001L_OLD | Warehouse (Depo Yeri) |
+| Lifnr | KREDA | Vendor (Satıcı) |
+| Matkl | H_T023 | Material Group (Mal Grubu) |
+| Matnr | MAT0M | Material Code (Malzeme No) |
+| Mbrsh | H_T137 | Industry Sector (Sektör) |
+| Mseh3, Msehi | H_T006 | Measurement Unit (Ölçü Birimi - UOM) |
+| Mtart | H_T134 | Material Type (Malzeme Türü) |
+| Pernr | EWAPERNR | Personnel Number (Personel Numarası & Ad & Soyad) |
+| Saknr, Hkont | SAKO_CORE | G/L Acct (Ana Hesap) (ReconAcctVH) (Akont) |
+| Spart, Vkorg | H_TVTA | Division (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Tanım) |
+| Spras | H_T002 | Language Flag (Dil Göstergesi) |
+| Vbeln | F4_VBAK | SD Document Number (SD Belge No) |
+| Vkbur, Vkorg | H_TVKBZ & H_TVBUR | Sales Office (Satış Organizasyonu Dağıtım Kanalı & Bölüm & Büro & Tanım) |
+| Vkgrp, Vkbur | H_TVBVK | Sales Group (Satış Bürosu) |
+| Vkorg | H_TVKO | Sales Organization (Organizasyonu) (SalesOrganizationVH) |
+| Vkorg, Bukrs | FAGL_ELM_VKORG_BUKRS | Sales Organization w/ Company Code (Satış Organizasyonu + Şirket Kodu) |
+| Vtweg | H_TVTW | Distribution Channel (Dağıtım Kanalı) |
+| Vtweg, Vkorg | H_TVKOV | Distribution Channel w/ Sales Organization (Dağıtım Kanalı + Satış Organizasyonu) |
+| Waers | FC_WAERS | Currency (Para Birimi) |
+| Werks | H_NAME1 | Production Place (Üretim Yeri) |
+| Werks | H_T001W | Production Place (Üretim Yeri) |

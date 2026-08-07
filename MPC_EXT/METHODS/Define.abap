@@ -1,3 +1,4 @@
+  " DEFINE: annotate a property with SAP display-format 'Date' (renders as date in Fiori UIs)
   " Define Date
   METHOD define.
     super->define( ).
@@ -17,6 +18,7 @@
     ENDTRY.
   ENDMETHOD.
 
+  " DEFINE: catalog of common MED annotations applied directly in the DEFINE method (labels, value help, filter/sort, tree table, media, ...)
   " Define in Method
   METHOD define.
     super->define( ).
@@ -139,13 +141,13 @@
 
         " Set Label
         lo_annotation->add( iv_key   = lc_label
-                            iv_value = 'SMERCAN' ).
+                            iv_value = 'Description' ).
 
         " Set Label From Text Element (Text | 001)
         lo_property->set_label_from_text_element( iv_text_element_symbol = 'Text'
                                                   io_object_ref          = me ).
         lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( lc_sap )->add( iv_key   = lc_label
-                                                                                      iv_value = 'SMERCAN' ).
+                                                                                      iv_value = 'Description' ).
 
         " Set Media
         lo_entity->set_is_media( iv_is_media = abap_true ).
@@ -155,7 +157,7 @@
         lo_entity->add_auto_expand_include( iv_include_name     = 'ZSM_S_TST'
                                             iv_dummy_field      = 'DUMMY'
                                             iv_bind_conversions = 'X' ).
-        lv_property->set_name( 'SMERCAN' ).
+        lv_property->set_name( 'KEY_ID' ).
 
         " Set Required Filter
         lo_annotation->add( iv_key   = lc_required_in_filter
@@ -214,6 +216,7 @@
     ENDTRY.
   ENDMETHOD.
 
+  " DEFINE: same annotation catalog, refactored behind a reusable ZCL_SM_MPC_UTIL helper class (see UtilClass.abap)
   " Define w/ Util Class
   METHOD define.
     DATA lo_mpc_util TYPE REF TO zcl_sm_mpc_util.

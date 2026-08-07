@@ -1,5 +1,5 @@
+  " EXECUTE_ACTION: dispatch on iv_action_name (Function Import), extract parameters, call BAPI/RFC, map to result structure
   METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
-    DATA lo_message    TYPE REF TO /iwbep/if_message_container.
     DATA ls_deep       TYPE zcl_zsm_mpc_ext=>ts_deep.
     " TODO: variable is assigned but never used (ABAP cleaner)
     DATA ls_value      TYPE zsm_s_value.

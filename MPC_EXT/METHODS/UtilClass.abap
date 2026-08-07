@@ -1,3 +1,4 @@
+" Helper class wrapping repetitive /IWBEP MED annotation calls used from MPC_EXT DEFINE (labels, value help, filter/sort flags, tree table, media, ...)
 CLASS zcl_sm_mpc_util DEFINITION
   PUBLIC FINAL
   CREATE PUBLIC.

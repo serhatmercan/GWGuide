@@ -1,3 +1,4 @@
+  " GET_EXPANDED_ENTITYSET: custom $expand handling for a deep entity set (single-level and multi-level nesting examples)
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.
     DATA(lo_filter)         = io_tech_request_context->get_filter( ).
     DATA(lt_select_options) = lo_filter->get_filter_select_options( ).
@@ -83,7 +84,7 @@
                               ( key = '002' type = 'DEF' message = 'Test VI' )
                               ( key = '002' type = 'GHI' message = 'Test VII' ) ).
         lt_multi_item_deep = VALUE #( ( id = '01' key = '001' text = 'Text' details = CORRESPONDING #( lt_details ) ) ).
-        lt_multi_deep = VALUE #( ( id = '01' value = 'SMERCAN' items = CORRESPONDING #( lt_multi_item_deep ) ) ).
+        lt_multi_deep = VALUE #( ( id = '01' value = 'JDOE' items = CORRESPONDING #( lt_multi_item_deep ) ) ).
 
         copy_data_to_ref( EXPORTING is_data = lt_multi_deep
                           CHANGING  cr_data = er_entityset ).

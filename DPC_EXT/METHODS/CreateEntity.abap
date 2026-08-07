@@ -1,3 +1,4 @@
+  " CREATE_ENTITY: read back the created entry from the data provider and return it, plus BAPI message propagation
   METHOD header_create_entity.
     " ------------------------
     " Read After Create   -

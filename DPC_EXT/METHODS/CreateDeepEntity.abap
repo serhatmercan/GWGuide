@@ -1,3 +1,4 @@
+  " CREATE_DEEP_ENTITY: read nested header+items payload from data provider, map to BAPI structures, commit, return deep entity
   METHOD /iwbep/if_mgw_appl_srv_runtime~create_deep_entity.
     " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lv_entity_name) = io_tech_request_context->get_entity_type_name( ).

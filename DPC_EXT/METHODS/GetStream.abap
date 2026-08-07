@@ -1,11 +1,12 @@
+  " GET_STREAM: read a media resource (PDF) via RFC, stamp metadata with Adobe Document Services, return as stream
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_stream.
     DATA ls_meta      TYPE sfpmetadata.
     DATA ls_stream    TYPE ty_s_media_resource.
     DATA lv_content   TYPE xstring.
     DATA lv_file_name TYPE rsbfilename.
     DATA lv_mime_type TYPE nte_mimetype        VALUE 'application/pdf'.
-    DATA lv_out_type  TYPE string              VALUE 'attachment'. " inline" "outline".
-    DATA data         TYPE c LENGTH lo_fp = cl_fp=>get_reference( ).
+    DATA lv_out_type  TYPE string              VALUE 'attachment'. " inline / attachment
+    DATA lt_documents TYPE STANDARD TABLE OF zsm_s_dms_data WITH DEFAULT KEY.
 
     DATA(lo_pdf_obj) = NEW cl_fp_pdf_object( connection = 'ADS' ).
 
@@ -15,7 +16,7 @@
 
         CALL FUNCTION 'ZSM_GET_DMS'
           EXPORTING iv_document_id = lv_document_id
-          IMPORTING et_dms_data    = data(lt_documents).
+          IMPORTING et_dms_data    = lt_documents.
 
         IF line_exists( lt_documents[ 1 ] ).
           lv_content   = lt_documents[ 1 ]-file_content.

@@ -1,3 +1,4 @@
+  " GET_ENTITYSET (Document): super call then post-process each row to build a $value stream URL
   METHOD documentset_get_entityset.
     TRY.
         super->documentset_get_entityset( EXPORTING iv_entity_name           = iv_entity_name

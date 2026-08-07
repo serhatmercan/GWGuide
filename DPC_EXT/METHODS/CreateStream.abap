@@ -1,3 +1,4 @@
+  " CREATE_STREAM: upload a media resource (document) via RFC, split slug into filename/key, return created entity + messages
   METHOD /iwbep/if_mgw_appl_srv_runtime~create_stream.
     DATA lt_return      TYPE bapiret2_t.
     DATA lv_content     TYPE xstring.

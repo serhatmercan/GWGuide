@@ -1,3 +1,5 @@
+" Request context: reading technical request headers and context params (session id, calling user)
+" Note: 'request_user' may appear either as a context param or as a technical request header depending on the caller; both lookups are shown.
 DATA lr_request_ctx TYPE REF TO /iwbep/cl_mgw_request.
 DATA ls_request     TYPE /iwbep/if_mgw_core_srv_runtime=>ty_s_mgw_request_context.
 DATA lv_jsessionid  TYPE ztm_jsessionid.

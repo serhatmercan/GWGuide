@@ -1,3 +1,4 @@
+" Resolve the RFC destination configured for the Gateway service in /IWFND/MAINT_SERVICE (System Alias)
 " Get Destination
 SELECT SINGLE rfc_dest 
   FROM /iwfnd/c_mgdeam AS mgdeam
@@ -8,6 +9,7 @@ SELECT SINGLE rfc_dest
     AND dfsyal~is_default EQ @abap_true
   INTO @DATA(lv_destination).
 ---
+" Read the destination bound to the DPC's data-provider facade; falls back to a local call when NONE/initial (sy-subrc/message class captured for error handling)
 " Get RFC Destination
 DATA: lo_dp_facade       TYPE REF TO /iwbep/if_mgw_dp_facade,
       ls_expanded_clause LIKE LINE OF et_expanded_tech_clauses,
@@ -49,6 +51,7 @@ ELSE.
   lv_subrc = sy-subrc.
 ENDIF.
 ---
+" Resolve a destination purely from sy-sysid, useful when the target system depends on the calling landscape (placeholders below - replace with your own destinations)
 " Get RFC Destination w/ System ID
 DATA(lv_destination) = SWITCH rfcdest( sy-sysid WHEN 'FIP' THEN 'ELPCLNT100_RFC' 
                                                 ELSE 'ELTCLNT100_RFC' ).
