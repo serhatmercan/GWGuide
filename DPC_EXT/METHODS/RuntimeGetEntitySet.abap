@@ -21,8 +21,21 @@
 *&      that should apply to EVERY entity set of the service - which is
 *&      what this file demonstrates.
 *&
-*& NEEDS OFFICIAL VERIFICATION: the exact parameter list of the generic
-*& GET_ENTITYSET varies by SAP_GWFND release - check SE24 in your system.
+*& SIGNATURE
+*& The documented core of /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_ENTITYSET is:
+*&
+*&   IMPORTING  iv_entity_name  iv_source_name
+*&              it_filter_select_options  it_order  is_paging
+*&              iv_search_string  it_key_tab  it_navigation_path
+*&              io_tech_request_context
+*&   EXPORTING  er_entityset  es_response_context
+*&
+*& NEEDS OFFICIAL VERIFICATION (narrow): iv_entity_set_name and
+*& iv_filter_string are passed in the super call below. Both are confirmed
+*& present on the closely related GET_EXPANDED_ENTITYSET, but the two
+*& published parameter lists for the plain GET_ENTITYSET omit them. Check
+*& the interface in SE24 on your release and drop them from the super call
+*& if they are not there.
 *&---------------------------------------------------------------------
 
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_entityset.

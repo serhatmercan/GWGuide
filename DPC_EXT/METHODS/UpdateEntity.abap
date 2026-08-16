@@ -14,9 +14,17 @@
 *& inside the called function module. No authorization object is invented
 *& in this repository.
 *&
-*& TRANSACTION (SAP LUW)
-*& Validate the business return table BEFORE committing. See the root
-*& README, section "Transaction Handling (SAP LUW)".
+*& SCOPE: STANDALONE REQUEST / RFC TRANSACTION PATTERN
+*& Example 2 demonstrates a STANDALONE (non-$batch) request that calls a
+*& remote-enabled function module and owns the commit decision itself.
+*&
+*& It is NOT universally applicable. Inside a multi-operation $batch
+*& CHANGESET the transaction boundary belongs to the Gateway changeset
+*& processing, not to the individual CRUD method - see the note at the
+*& commit and the root README, "Transaction Handling (SAP LUW)".
+*&
+*& TRANSACTION (SAP LUW) - standalone case
+*& Validate the business return table BEFORE committing.
 *&---------------------------------------------------------------------
 
   " ---------------------------------------------------------------------
@@ -173,12 +181,28 @@
                               message_container = lo_message_container ).
     ENDIF.
 
-    " Success only.
+    " ---------------------------------------------------------------
+    " STANDALONE REQUEST ONLY - DO NOT COPY INTO CHANGESET PROCESSING
+    "
+    " Success path of a standalone (non-$batch) request, so this method
+    " owns the commit.
+    "
     " A remote call runs in its own LUW on the target system, so the commit
     " has to be issued THERE - hence iv_rfc_dest. A local call shares this
-    " LUW. commit_work( ) is the SEGW-generated DPC helper; its exact
-    " signature and behaviour are release-dependent -
-    " NEEDS OFFICIAL VERIFICATION for your SAP_GWFND release.
+    " LUW. That local-vs-remote distinction is the point of this example.
+    "
+    " This explicit commit is NOT suitable inside a multi-operation $batch
+    " changeset: a changeset is an atomic LUW, and committing per operation
+    " destroys that atomicity - a later failure in the same changeset can
+    " no longer undo what this operation already committed. Changeset
+    " transaction handling must be designed through the Gateway changeset
+    " lifecycle (CHANGESET_BEGIN / CHANGESET_END / CHANGESET_PROCESS)
+    " instead. See BATCH/README.md.
+    "
+    " commit_work( ) is the SEGW-generated DPC helper; its exact signature
+    " and behaviour are release-dependent - NEEDS OFFICIAL VERIFICATION for
+    " your SAP_GWFND release.
+    " ---------------------------------------------------------------
     me->/iwbep/if_sb_dpc_comm_services~commit_work( iv_rfc_dest = lv_destination ).
 
   ENDMETHOD.

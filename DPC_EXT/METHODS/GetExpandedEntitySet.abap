@@ -17,10 +17,21 @@
 *&   GET .../HeaderSet('1')?$expand=Items  -> GET_EXPANDED_ENTITY    (ER_ENTITY)
 *&   GET .../HeaderSet?$expand=Items       -> GET_EXPANDED_ENTITYSET (ER_ENTITYSET)
 *&
-*& NEEDS OFFICIAL VERIFICATION: the exact parameter list of
-*& /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_EXPANDED_ENTITYSET varies by
-*& SAP_GWFND release. Check the interface in your own system (SE24) and
-*& adjust the super call below accordingly.
+*& SIGNATURE
+*& The super call below matches the documented interface of
+*& /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_EXPANDED_ENTITYSET:
+*&
+*&   IMPORTING  iv_entity_name  iv_entity_set_name  iv_source_name
+*&              it_filter_select_options  it_order  is_paging
+*&              it_navigation_path  it_key_tab
+*&              iv_filter_string  iv_search_string
+*&              io_expand  io_tech_request_context
+*&   EXPORTING  er_entityset  es_response_context
+*&              et_expanded_clauses  et_expanded_tech_clauses
+*&
+*& Note the difference from GET_EXPANDED_ENTITY: the entity-SET variant
+*& additionally receives the query options (filter / order / paging /
+*& filter string) and exports ER_ENTITYSET instead of ER_ENTITY.
 *&---------------------------------------------------------------------
 
   " GET_EXPANDED_ENTITYSET: read header + children in one backend call and

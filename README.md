@@ -158,27 +158,53 @@ Full reference with literal forms, escaping and encoding: **[ODATA/README.md](OD
 ## Transaction Handling (SAP LUW)
 
 Getting this wrong produces lost updates or premature commits — both invisible in testing and
-both damaging in production. The rules the examples in this repository follow:
+both damaging in production. **Who owns the commit depends on how the request arrives**, so
+the two cases have to be kept apart.
 
-1. **Gateway does not own your business LUW.** It authenticates the caller and dispatches the
-   request. Deciding when work is persisted is yours.
-2. **Never commit before validating the business result.** Check the return table for `E`
+### A. Standalone (non-`$batch`) requests
+
+A single OData request that reaches one CRUD method. Here the application logic may need to
+own the commit/rollback decision — depending on the API being called and on whether processing
+is local or remote.
+
+1. **Never commit before validating the business result.** Check the return table for `E`
    (error), `A` (abort) **and** `X` (exit) — checking only `'E'` misses aborts. On failure,
    populate the message container and raise; do not commit.
-3. **A remote `CALL FUNCTION ... DESTINATION` runs in its own LUW on the target system.** Your
+2. **A remote `CALL FUNCTION ... DESTINATION` runs in its own LUW on the target system.** Your
    local commit does not reach it — the commit has to be issued on that destination. A local
    call shares your LUW. The same code path therefore needs a different commit strategy per
    branch. See [`DESTINATION/Destination.abap`](DESTINATION/Destination.abap).
-4. **BAPIs do not commit themselves.** The caller owns the commit, by design.
-5. **Inside a `$batch` changeset, committing per operation breaks changeset atomicity.** A
-   changeset is meant to succeed or fail as a unit. See [`BATCH/README.md`](BATCH/README.md).
-6. **There is no blanket "commit after every write" rule.** Decide who owns the LUW for your
-   service and write it down.
-7. **`commit_work( )` and `rfc_save_log( )` are SEGW-generated DPC conveniences.** Their exact
+3. **BAPIs do not commit themselves.** The caller owns the commit, by design.
+4. **There is no blanket "always commit in DPC_EXT" rule.** Whether a commit belongs in your
+   method depends on the API you call and the deployment. Decide it per service and write it
+   down.
+
+### B. `$batch` changesets
+
+A changeset is an **atomic LUW** spanning several operations.
+
+5. **During multi-operation changeset processing the provider must not issue its own
+   `COMMIT WORK` or `ROLLBACK WORK` inside individual CRUD operations.** The Gateway changeset
+   processing owns the commit/rollback boundary.
+6. **A premature per-operation commit destroys changeset atomicity.** Once operation 1 has
+   committed, a failure in operation 3 can no longer undo it, and the changeset's
+   all-or-nothing contract is broken — leaving a partially applied composite change.
+7. **Design changeset transaction handling through the changeset lifecycle**
+   (`CHANGESET_BEGIN` / `CHANGESET_END` / `CHANGESET_PROCESS` on
+   `/IWBEP/IF_MGW_APPL_SRV_RUNTIME`), not by committing inside the CRUD methods. See
+   [`BATCH/README.md`](BATCH/README.md).
+
+### Both cases
+
+8. **`commit_work( )` and `rfc_save_log( )` are SEGW-generated DPC conveniences.** Their exact
    signatures and behaviour are release-dependent — verify them in your own system. Note that
    `rfc_save_log( )` is *logging only*: it does not commit and does not affect the response.
 
-Canonical example: [`DPC_EXT/METHODS/CreateDeepEntity.abap`](DPC_EXT/METHODS/CreateDeepEntity.abap).
+The two commit examples in this repository
+([`CreateDeepEntity.abap`](DPC_EXT/METHODS/CreateDeepEntity.abap),
+[`UpdateEntity.abap`](DPC_EXT/METHODS/UpdateEntity.abap)) demonstrate case **A** — standalone,
+RFC-backed request processing. Both carry an explicit warning that their commit must not be
+copied into changeset processing.
 
 ## Security & Authorization Boundary
 
@@ -264,7 +290,8 @@ connected system are marked **`NEEDS OFFICIAL VERIFICATION`** in the code rather
   neutral placeholders (`DEV` / `QAS` / `PRD`, `EXAMPLE_RFC_*`, `example.sap.system`, `JDOE`,
   `ZSM*`). Standard SAP object names are used accurately and intentionally.
 - Screenshots that could not be sanitised without losing their technical point were removed and
-  replaced with written documentation.
+  replaced with written documentation. Note that this applies to the **current tree**; earlier
+  commits in this repository's history still contain those files.
 
 ## Contributing
 

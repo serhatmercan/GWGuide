@@ -111,18 +111,31 @@ the most common `$batch` mistake on the client side.
 
 ## Changesets and the SAP LUW
 
-A changeset is the point where `$batch` meets ABAP transaction handling, and it is the
-reason the guidance in the root README's *Transaction Handling (SAP LUW)* section matters:
+A changeset is the point where `$batch` meets ABAP transaction handling, and it is where the
+transaction ownership rule differs from a standalone request:
 
 - All operations in a changeset run in **one Gateway request and one work process**.
-- The changeset is meant to be **atomic** — all of its operations succeed, or none is
-  persisted.
-- If a DPC_EXT method **commits during the changeset**, the framework can no longer discard
-  the earlier operations, and atomicity is lost. This is why the examples in this repository
-  never commit before validating the business return table.
-- `/IWBEP/IF_MGW_APPL_SRV_RUNTIME` exposes changeset lifecycle methods
-  (`CHANGESET_BEGIN` / `CHANGESET_END` / `CHANGESET_PROCESS`) intended for owning the
-  transaction across a whole changeset rather than per operation.
+- **A changeset is an atomic LUW** — all of its operations succeed, or none is persisted.
+- **During multi-operation changeset processing the provider must not issue its own
+  `COMMIT WORK` or `ROLLBACK WORK` inside individual CRUD operations.** The Gateway changeset
+  processing owns the commit/rollback boundary.
+- **A premature per-operation commit destroys changeset atomicity.** Once operation 1 has
+  committed, a failure in operation 3 can no longer undo it — the client gets an error while
+  part of the composite change is already persisted.
+- Changeset transaction handling belongs in the **changeset lifecycle** methods of
+  `/IWBEP/IF_MGW_APPL_SRV_RUNTIME` (`CHANGESET_BEGIN` / `CHANGESET_END` /
+  `CHANGESET_PROCESS`), which own the transaction across the whole changeset, rather than in
+  the individual CRUD methods.
+
+By contrast, a **standalone (non-`$batch`) request** reaches a single CRUD method, and there
+the application logic may need to own the commit/rollback decision — depending on the API and
+on whether processing is local or remote. That is the case the two commit examples in this
+repository demonstrate, and both say so explicitly:
+[`CreateDeepEntity.abap`](../DPC_EXT/METHODS/CreateDeepEntity.abap),
+[`UpdateEntity.abap`](../DPC_EXT/METHODS/UpdateEntity.abap). **Their commit must not be copied
+into changeset processing.**
+
+See the root README, [Transaction Handling (SAP LUW)](../README.md#transaction-handling-sap-luw).
 
 > The exact changeset lifecycle contract — which methods the framework calls, in what order,
 > and what it does on failure — is release-specific. **NEEDS OFFICIAL VERIFICATION** against

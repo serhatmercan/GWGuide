@@ -11,9 +11,19 @@
 *&   GET .../DeepSet('1')?$expand=Items -> GET_EXPANDED_ENTITY    (ER_ENTITY)
 *&   GET .../DeepSet?$expand=Items      -> GET_EXPANDED_ENTITYSET (ER_ENTITYSET)
 *&
-*& NEEDS OFFICIAL VERIFICATION: the exact parameter list of
-*& /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_EXPANDED_ENTITY varies by
-*& SAP_GWFND release - check SE24 in your own system.
+*& SIGNATURE
+*& The super call below matches the documented interface of
+*& /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_EXPANDED_ENTITY:
+*&
+*&   IMPORTING  iv_entity_name  iv_entity_set_name  iv_source_name
+*&              it_key_tab  it_navigation_path
+*&              io_expand  io_tech_request_context
+*&   EXPORTING  er_entity  es_response_context
+*&              et_expanded_clauses  et_expanded_tech_clauses
+*&
+*& A single entity is addressed by key, so this method receives NO query
+*& options: no is_paging, no it_filter_select_options, no it_order and no
+*& iv_filter_string. Those belong to GET_EXPANDED_ENTITYSET.
 *&---------------------------------------------------------------------
 
   METHOD /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity.

@@ -25,12 +25,19 @@
 *&     of the sorted set. Sorting a page that has already been cut is a
 *&     page-local sort and is NOT globally correct.
 *&
-*& PERFORMANCE
-*& Examples 2 and 6 filter/sort/page IN MEMORY. That is fine for small,
-*& bounded result sets and is shown here because it makes the semantics
-*& visible. Productive services over large tables must push $filter,
-*& $orderby and $top/$skip down to the data source (SELECT ... WHERE ...
-*& ORDER BY ... UP TO n ROWS, or the equivalent RFC/CDS parameters).
+*& PERFORMANCE - AND A LIMIT OF THESE EXAMPLES
+*& Examples 2 and 6 filter/sort/page IN MEMORY. That is shown because it
+*& makes the semantics visible, and it is fine for small, bounded result
+*& sets. It is NOT a semantically complete large-dataset implementation:
+*& example 2 caps the database read for safety, and everything after that
+*& cap - remaining filters, inline count, sort, paging - therefore applies
+*& to a bounded SAMPLE rather than the full result set. See the note at
+*& the SELECT in example 2.
+*&
+*& Productive services over large tables must push $filter, $orderby and
+*& $top/$skip down to the data source (SELECT ... WHERE ... ORDER BY ...
+*& OFFSET ... UP TO n ROWS, plus a separate COUNT(*) for $inlinecount, or
+*& the equivalent RFC/CDS parameters).
 *&
 *& AUTHORIZATION BOUNDARY
 *& Gateway authenticates the caller and checks service access; it does not
@@ -108,22 +115,54 @@
     ENDLOOP.
 
     " ---------------------------------------------------------------
-    " 2) Read.
+    " 2) Read - the demonstrated filter is PUSHED DOWN to the database.
+    "
+    "    lr_matnr is applied in the WHERE clause, so the Matnr filter is
+    "    evaluated by the database and not in ABAP.
+    "
     "    An EMPTY range is a no-op in Open SQL - "matnr IN @lr_matnr"
     "    matches EVERY row when no Matnr filter was sent. That is the most
     "    common cause of an accidental full-table read in a Gateway
-    "    service. Bound the selection (here: UP TO n ROWS) or require a
-    "    filter via sap:required-in-filter in MPC_EXT.
+    "    service. Guard against it with sap:required-in-filter in MPC_EXT,
+    "    or with the sample cap below.
+    "
     "    Select the entity fields explicitly instead of SELECT *.
     " ---------------------------------------------------------------
     SELECT matnr, mtart, matkl, meins
       FROM mara
       WHERE matnr IN @lr_matnr
       INTO CORRESPONDING FIELDS OF TABLE @et_entityset
-      UP TO 5000 ROWS.
+      UP TO 5000 ROWS.                     " <- SAMPLE / SAFETY CAP, see below
+
+    " ---------------------------------------------------------------
+    " *** WHAT THE CAP COSTS - READ THIS BEFORE REUSING THE EXAMPLE ***
+    "
+    "    UP TO 5000 ROWS truncates at the DATABASE, i.e. BEFORE steps 3-6
+    "    run. It is a safety limit that keeps this illustration bounded -
+    "    it is NOT part of OData query semantics. Consequences:
+    "
+    "      - any $filter property OTHER than Matnr is evaluated in step 3,
+    "        so matching rows beyond row 5000 were already discarded
+    "      - the inline count in step 4 counts within the capped sample,
+    "        not the true filtered total
+    "      - the sort in step 5 orders the sample, so it is not a global
+    "        ordering of the full result set
+    "      - consequently $top/$skip in step 6 page a sample, not the set
+    "
+    "    This example therefore demonstrates the /IWBEP/CL_MGW_DATA_UTIL
+    "    helpers and the ORDER they must run in. It is NOT a semantically
+    "    complete large-dataset OData implementation.
+    "
+    "    For a productive service over a large table, push the work down:
+    "    build the WHERE clause from ALL filtered properties, add
+    "    ORDER BY for $orderby, and use OFFSET/UP TO n ROWS driven by
+    "    $skip/$top - then a separate COUNT(*) for $inlinecount. Only the
+    "    remainder that genuinely cannot be pushed down belongs in memory.
+    " ---------------------------------------------------------------
 
     " ---------------------------------------------------------------
     " 3) FILTER - apply any remaining $filter properties in memory.
+    "    (Matnr was already handled by the database above.)
     " ---------------------------------------------------------------
     /iwbep/cl_mgw_data_util=>filtering( EXPORTING it_select_options = it_filter_select_options
                                         CHANGING  ct_data           = et_entityset ).
