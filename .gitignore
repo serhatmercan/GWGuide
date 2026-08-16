@@ -1,0 +1,4 @@
+# Local tooling / OS artifacts (not part of the reference)
+.claude/
+.DS_Store
+Thumbs.db

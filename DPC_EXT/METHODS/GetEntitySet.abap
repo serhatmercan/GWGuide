@@ -1,279 +1,454 @@
-  " GET_ENTITYSET: super call + custom paging tweak + manual sort by mapped field name
+*&---------------------------------------------------------------------
+*& GET_ENTITYSET - query a collection ($filter / $orderby / $top / $skip /
+*&                 $inlinecount)
+*&---------------------------------------------------------------------
+*& REFERENCE COOKBOOK - READ BEFORE COPYING
+*&
+*& This file contains SIX INDEPENDENT reference method bodies. They are
+*& NOT meant to be pasted together into one DPC_EXT class:
+*&   - several are deliberately named xxxset_get_entityset, because each
+*&     is an alternative implementation of the SAME generated method
+*&   - pick ONE approach per entity set
+*&   - identifiers (zcl_zsm_*, zsm_cl_util, range_t_matnr, ...) are
+*&     placeholders for the artefacts your SEGW project generated
+*&   - helper objects (mo_context, lo_dp_facade) come from the generated
+*&     DPC class
+*&
+*& THE ORDER THAT MATTERS
+*& For a correct OData V2 collection response the conceptual order is:
+*&
+*&        FILTER  ->  INLINE COUNT  ->  SORT  ->  PAGE
+*&
+*&   - counting AFTER filtering but BEFORE paging is what makes __count
+*&     usable for a paged table
+*&   - sorting BEFORE paging is what makes "page 2" mean the second page
+*&     of the sorted set. Sorting a page that has already been cut is a
+*&     page-local sort and is NOT globally correct.
+*&
+*& PERFORMANCE
+*& Examples 2 and 6 filter/sort/page IN MEMORY. That is fine for small,
+*& bounded result sets and is shown here because it makes the semantics
+*& visible. Productive services over large tables must push $filter,
+*& $orderby and $top/$skip down to the data source (SELECT ... WHERE ...
+*& ORDER BY ... UP TO n ROWS, or the equivalent RFC/CDS parameters).
+*&
+*& AUTHORIZATION BOUNDARY
+*& Gateway authenticates the caller and checks service access; it does not
+*& authorize the business data returned. Add the application's own
+*& authorization to the selection or filter the result accordingly. No
+*& authorization object is invented in this repository.
+*&---------------------------------------------------------------------
+
+
+*&---------------------------------------------------------------------
+*& Example 1 - call super, then ENRICH the result
+*&
+*& Correct use: add derived/computed values to the rows super returned.
+*&
+*& NOT correct: re-sorting or re-filtering here. super already applied
+*& filtering, ordering AND paging, so et_entityset holds only the current
+*& page. Re-sorting it produces a page-local order, which looks right on
+*& page 1 and is wrong on every later page. If you need custom ordering,
+*& own the whole query instead - see example 2.
+*&---------------------------------------------------------------------
   METHOD xxxset_get_entityset.
-    DATA ls_paging TYPE /iwbep/s_mgw_paging.
-    DATA lt_otab   TYPE abap_sortorder_tab.
 
-    TRY.
-        ls_paging = is_paging.
+    super->xxxset_get_entityset( EXPORTING iv_entity_name           = iv_entity_name
+                                           iv_entity_set_name       = iv_entity_set_name
+                                           iv_source_name           = iv_source_name
+                                           it_filter_select_options = it_filter_select_options
+                                           is_paging                = is_paging
+                                           it_key_tab               = it_key_tab
+                                           it_navigation_path       = it_navigation_path
+                                           it_order                 = it_order
+                                           iv_filter_string         = iv_filter_string
+                                           iv_search_string         = iv_search_string
+                                           io_tech_request_context  = io_tech_request_context
+                                 IMPORTING et_entityset             = et_entityset
+                                           es_response_context      = es_response_context ).
 
-        IF line_exists( it_order[ order = 'desc' ] ).
-          ls_paging-top = 9999.
-        ENDIF.
+    " Row-local enrichment only - does not change membership or order.
+    LOOP AT et_entityset ASSIGNING FIELD-SYMBOL(<ls_entity>).
+      <ls_entity>-display_text = |{ <ls_entity>-key } - { <ls_entity>-description }|.
+    ENDLOOP.
 
-        super->orderslistset_get_entityset( EXPORTING iv_entity_name           = iv_entity_name
-                                                      iv_entity_set_name       = iv_entity_set_name
-                                                      iv_source_name           = iv_source_name
-                                                      it_filter_select_options = it_filter_select_options
-                                                      is_paging                = ls_paging
-                                                      it_key_tab               = it_key_tab
-                                                      it_navigation_path       = it_navigation_path
-                                                      it_order                 = it_order
-                                                      iv_filter_string         = iv_filter_string
-                                                      iv_search_string         = iv_search_string
-                                                      io_tech_request_context  = io_tech_request_context
-                                            IMPORTING et_entityset             = et_entityset
-                                                      es_response_context      = es_response_context ).
+    " No CATCH here on purpose: a business or technical exception raised by
+    " super must reach the framework. Swallowing it would turn a backend
+    " failure into HTTP 200 with an empty collection, which a Fiori client
+    " renders as "no data" instead of an error.
 
-        LOOP AT it_order REFERENCE INTO DATA(lr_order).
-          CASE lr_order->property.
-            WHEN 'OrderNo'.
-              lr_order->property = 'ORDER_NO'.
-          ENDCASE.
-
-          APPEND VALUE #( name       = lr_order->property
-                          descending = ( lr_order->order = 'desc' ) ) TO lt_otab.
-        ENDLOOP.
-
-        IF lt_otab IS NOT INITIAL.
-          SORT et_entityset BY (lt_otab).
-        ENDIF.
-      CATCH /iwbep/cx_mgw_busi_exception.
-      CATCH /iwbep/cx_mgw_tech_exception.
-    ENDTRY.
   ENDMETHOD.
 
-  " GET_ENTITYSET: manual SELECT + explicit filter/paging/sort utility calls
+
+*&---------------------------------------------------------------------
+*& Example 2 - own the whole query: SELECT + filter/count/sort/page
+*&
+*& The canonical in-memory implementation. Note the order of the four
+*& steps and the conditional inline count.
+*&---------------------------------------------------------------------
   METHOD xxxset_get_entityset.
-    DATA(lr_matnr) = VALUE range_t_matnr( ).
 
-    " Build a range table from the incoming $filter select options for MATNR
-    IF line_exists( it_filter_select_options[ property = 'Matnr' ] ).
-      lr_matnr = VALUE #(
-          FOR ls_select IN it_filter_select_options[ property = 'Matnr' ]-select_options
-          ( sign = 'I' option = 'EQ' low = |{ ls_select-low ALPHA = IN }| high = |{ ls_select-high ALPHA = IN }| ) ).
-    ENDIF.
+    " ---------------------------------------------------------------
+    " 1) $filter -> ABAP range.
+    "    Use the filter object rather than hand-building the range:
+    "    convert_select_option( ) applies the conversion exit AND keeps
+    "    the real sign/option semantics. Hard-coding sign='I' option='EQ'
+    "    silently mistranslates every BT (ge/le interval), CP
+    "    (startswith/substringof), NE and exclusion filter.
+    " ---------------------------------------------------------------
+    DATA(lo_filter) = io_tech_request_context->get_filter( ).
+    DATA lr_matnr TYPE RANGE OF matnr.
 
-    SELECT * FROM mara
+    LOOP AT lo_filter->get_filter_select_options( ) ASSIGNING FIELD-SYMBOL(<ls_select_option>).
+      CASE <ls_select_option>-property.
+        WHEN 'Matnr'.
+          lo_filter->convert_select_option( EXPORTING is_select_option = <ls_select_option>
+                                            IMPORTING et_select_option = lr_matnr ).
+      ENDCASE.
+    ENDLOOP.
+
+    " ---------------------------------------------------------------
+    " 2) Read.
+    "    An EMPTY range is a no-op in Open SQL - "matnr IN @lr_matnr"
+    "    matches EVERY row when no Matnr filter was sent. That is the most
+    "    common cause of an accidental full-table read in a Gateway
+    "    service. Bound the selection (here: UP TO n ROWS) or require a
+    "    filter via sap:required-in-filter in MPC_EXT.
+    "    Select the entity fields explicitly instead of SELECT *.
+    " ---------------------------------------------------------------
+    SELECT matnr, mtart, matkl, meins
+      FROM mara
       WHERE matnr IN @lr_matnr
-      INTO CORRESPONDING FIELDS OF TABLE @et_entityset.
+      INTO CORRESPONDING FIELDS OF TABLE @et_entityset
+      UP TO 5000 ROWS.
 
-    " Filtering
+    " ---------------------------------------------------------------
+    " 3) FILTER - apply any remaining $filter properties in memory.
+    " ---------------------------------------------------------------
     /iwbep/cl_mgw_data_util=>filtering( EXPORTING it_select_options = it_filter_select_options
                                         CHANGING  ct_data           = et_entityset ).
 
-    " Inline Count
-    es_response_context-inlinecount = COND #( WHEN io_tech_request_context->has_inlinecount( ) = abap_true
-                                              THEN lines(
-et_entityset )
-                                              ELSE 0 ).
+    " ---------------------------------------------------------------
+    " 4) INLINE COUNT - after filtering, before paging.
+    "    Only when the client asked for it: per OData V2, __count must not
+    "    appear unless $inlinecount=allpages was sent.
+    " ---------------------------------------------------------------
+    IF io_tech_request_context->has_inlinecount( ) = abap_true.
+      es_response_context-inlinecount = lines( et_entityset ).
+    ENDIF.
 
-    " Inline Count II
-    es_response_context-inlinecount = LINES( et_entityset ).
+    " ---------------------------------------------------------------
+    " 5) SORT - before paging, so paging cuts the sorted set.
+    " ---------------------------------------------------------------
+    /iwbep/cl_mgw_data_util=>orderby( EXPORTING it_order = it_order
+                                      CHANGING  ct_data  = et_entityset ).
 
-    " Paging
+    " ---------------------------------------------------------------
+    " 6) PAGE - $top / $skip last.
+    " ---------------------------------------------------------------
     /iwbep/cl_mgw_data_util=>paging( EXPORTING is_paging = is_paging
                                      CHANGING  ct_data   = et_entityset ).
 
-    " Sorting
-    /iwbep/cl_mgw_data_util=>orderby( EXPORTING it_order = it_order
-                                      CHANGING  ct_data  = et_entityset ).
   ENDMETHOD.
 
-  " GET_ENTITYSET: RFC/BAPI-based read via remote destination, with filter-to-range conversion
+
+*&---------------------------------------------------------------------
+*& Example 3 - read through a remote-enabled function module
+*&
+*& Shows the supported way to turn $filter into ABAP ranges and to resolve
+*& the destination from the service configuration (system alias) rather
+*& than from a hard-coded map.
+*&---------------------------------------------------------------------
   METHOD xxxset_get_entityset.
+
     CONSTANTS lc_rfc_name TYPE tfdir-funcname VALUE 'ZSM_F_TEST'.
 
-    DATA ls_converted_keys LIKE LINE OF et_entityset.
-    " TODO: variable is assigned but never used (ABAP cleaner)
-    DATA lr_name_first     TYPE zif_zsm_f_test=>zmm_tt_name_first_range.
-    DATA lr_user_uname     LIKE RANGE OF ls_converted_keys-uname.
-    " TODO: variable is assigned but never used (ABAP cleaner)
-    DATA ls_paging         TYPE /iwbep/s_mgw_paging.
-    DATA lt_details        TYPE zcl_zsm_tst_mpc_ext=>tt_user_detail.
-    DATA lt_return         TYPE bapiret2_t.
-    DATA lv_username       TYPE zif_zsm_f_test=>syst-uname.
+    DATA lt_details  TYPE zcl_zsm_tst_mpc_ext=>tt_user_detail.
+    DATA lt_return   TYPE bapiret2_t.
+    DATA lv_exc_msg  TYPE string.
+    DATA lv_subrc    TYPE sy-subrc.
+    DATA lr_uname    TYPE RANGE OF syuname.
 
+    DATA(lo_message_container) = mo_context->get_message_container( ).
+
+    " 1) $filter -> ranges. Pass the WHOLE range to the backend; reducing a
+    "    multi-value filter to its first value silently drops the rest.
     DATA(lo_filter) = io_tech_request_context->get_filter( ).
-    DATA(lt_filter_select_options) = lo_filter->get_filter_select_options( ).
+
+    LOOP AT lo_filter->get_filter_select_options( ) ASSIGNING FIELD-SYMBOL(<ls_select_option>).
+      CASE <ls_select_option>-property.
+        WHEN 'Uname'.
+          lo_filter->convert_select_option( EXPORTING is_select_option = <ls_select_option>
+                                            IMPORTING et_select_option = lr_uname ).
+      ENDCASE.
+    ENDLOOP.
+
+    " 2) $top / $skip are available from the request context even where the
+    "    method signature carries no is_paging.
+    DATA(ls_paging) = VALUE /iwbep/s_mgw_paging( top  = io_tech_request_context->get_top( )
+                                                 skip = io_tech_request_context->get_skip( ) ).
+
+    " 3) Resolve the destination configured for this service in
+    "    /IWFND/MAINT_SERVICE. Initial or 'NONE' means embedded deployment
+    "    (hub = backend), so call locally.
+    DATA(lo_dp_facade)   = /iwbep/if_mgw_conv_srv_runtime~get_dp_facade( ).
     DATA(lv_destination) = /iwbep/cl_sb_gen_dpc_rt_util=>get_rfc_destination( io_dp_facade = lo_dp_facade ).
 
-    ls_paging-skip = io_tech_request_context->get_skip( ).
-    ls_paging-top  = io_tech_request_context->get_top( ).
-
-    LOOP AT lt_filter_select_options INTO DATA(ls_filter).
-      CASE ls_filter-property.
-        WHEN 'NAME_FIRST'.
-          lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter
-                                            IMPORTING et_select_option = lr_name_first ).
-        WHEN 'UNAME'.
-          lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter
-                                            IMPORTING et_select_option = lr_user_uname ).
-          lv_username = VALUE #( lr_user_uname[ 1 ]-low OPTIONAL ).
-      ENDCASE.
-    ENDLOOP.
-
-    TRY.
-        IF lv_destination IS INITIAL OR lv_destination = 'NONE'.
+    IF lv_destination IS INITIAL OR lv_destination = 'NONE'.
+      TRY.
           CALL FUNCTION lc_rfc_name
-            EXPORTING iv_uname = lv_username
-            IMPORTING details  = lt_details
-            TABLES    return   = lt_return.
-        ELSE.
-          CALL FUNCTION lc_rfc_name
-            DESTINATION lv_destination
-            EXPORTING iv_uname = lv_username
-            IMPORTING details  = lt_details
-            TABLES    return   = lt_return.
-        ENDIF.
+            EXPORTING ir_uname  = lr_uname
+            IMPORTING et_details = lt_details
+            TABLES    et_return  = lt_return.
 
-        IF line_exists( lt_return[ type = 'E' ] ).
-          RAISE EXCEPTION NEW /iwbep/cx_mgw_busi_exception(
-                                  message_container = me->mo_context->get_message_container( ) ).
-        ENDIF.
+          lv_subrc = sy-subrc.
+        CATCH cx_root INTO DATA(lx_root).
+          lv_subrc   = 1001.
+          lv_exc_msg = lx_root->get_text( ).
+      ENDTRY.
+    ELSE.
+      CALL FUNCTION lc_rfc_name
+        DESTINATION lv_destination
+        EXPORTING  ir_uname              = lr_uname
+        IMPORTING  et_details            = lt_details
+        TABLES     et_return             = lt_return
+        EXCEPTIONS system_failure        = 1000 MESSAGE lv_exc_msg
+                   communication_failure = 1001 MESSAGE lv_exc_msg
+                   OTHERS                = 1002.
 
-        et_entityset = CORRESPONDING #( lt_details ).
-      CATCH cx_root INTO DATA(lx_root).
-        lo_message->add_message_text_only( iv_msg_type = 'E'
-                                           iv_msg_text = lx_root->get_text( ) ).
-        RAISE EXCEPTION NEW /iwbep/cx_mgw_busi_exception( message_container = lo_message ).
-    ENDTRY.
-  ENDMETHOD.
-
-  " GET_ENTITYSET: super call + custom orderby field-name conversion (CamelCase -> DB field)
-  METHOD xxxset_get_entityset.
-    TRY.
-        DATA(lt_order) = it_order.
-
-        super->xxxset_get_entityset( EXPORTING iv_entity_name           = iv_entity_name
-                                               iv_entity_set_name       = iv_entity_set_name
-                                               iv_source_name           = iv_source_name
-                                               it_filter_select_options = it_filter_select_options
-                                               is_paging                = is_paging
-                                               it_key_tab               = it_key_tab
-                                               it_navigation_path       = it_navigation_path
-                                               it_order                 = it_order
-                                               iv_filter_string         = iv_filter_string
-                                               iv_search_string         = iv_search_string
-                                               io_tech_request_context  = io_tech_request_context
-                                     IMPORTING et_entityset             = et_entityset
-                                               es_response_context      = es_response_context ).
-
-        LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
-          zsm_cl_util=>convert_property_field( CHANGING cv_property = <fs_order>-property ).
-        ENDLOOP.
-
-        /iwbep/cl_mgw_data_util=>orderby( EXPORTING it_order = lt_order
-                                          CHANGING  ct_data  = et_entityset ).
-      CATCH /iwbep/cx_mgw_busi_exception.
-      CATCH /iwbep/cx_mgw_tech_exception.
-    ENDTRY.
-  ENDMETHOD.
-
-  " cv_property TYPE string (optional)
-  METHOD convert_property_field.
-    DATA(lo_regex_pattern) = cl_abap_regex=>create_pcre( pattern = `[A-Z]{1}[a-z]+` ).
-    DATA(lo_matcher) = lo_regex_pattern->create_matcher( text = cv_property ).
-    DATA lv_formatted_text TYPE string.
-
-    WHILE lo_matcher->find_next( ).
-      DATA(lv_match) = lo_matcher->get_match( ).
-      DATA(lv_match_text) = cv_property+lv_match-offset(lv_match-length).
-
-      TRANSLATE lv_match_text TO UPPER CASE.
-
-      lv_formatted_text = |{ lv_formatted_text }{ lv_match_text }_|.
-    ENDWHILE.
-
-    IF strlen( lv_formatted_text ) > 0.
-      lv_formatted_text = substring( val = lv_formatted_text
-                                     off = 0
-                                     len = strlen( lv_formatted_text ) - 1 ).
+      lv_subrc = sy-subrc.
     ENDIF.
 
-    cv_property = lv_formatted_text.
+    " 4) A communication/system failure is TECHNICAL (5xx-class), not a
+    "    business rejection. Do not flatten it into a business exception,
+    "    and do not put raw internal exception text into the response -
+    "    it can disclose program, table and structure names.
+    IF lv_subrc <> 0.
+      lo_message_container->add_message_text_only(
+          iv_msg_type = 'E'
+          iv_msg_text = 'The backend system could not be reached. Please contact support.' ).
+
+      RAISE EXCEPTION NEW /iwbep/cx_mgw_tech_exception(
+                              message_container = lo_message_container ).
+    ENDIF.
+
+    " 5) Business errors -> populate the container FIRST, then raise.
+    "    Raising with an empty container gives the client a generic error
+    "    and discards the real BAPI messages.
+    IF line_exists( lt_return[ type = 'E' ] )
+    OR line_exists( lt_return[ type = 'A' ] )
+    OR line_exists( lt_return[ type = 'X' ] ).
+      lo_message_container->add_messages_from_bapi( it_bapi_messages          = lt_return
+                                                    iv_add_to_response_header = abap_true ).
+
+      RAISE EXCEPTION NEW /iwbep/cx_mgw_busi_exception(
+                              message_container = lo_message_container ).
+    ENDIF.
+
+    et_entityset = CORRESPONDING #( lt_details ).
+
+    " 6) Filter / count / sort / page - same order as example 2.
+    /iwbep/cl_mgw_data_util=>filtering( EXPORTING it_select_options = it_filter_select_options
+                                        CHANGING  ct_data           = et_entityset ).
+
+    IF io_tech_request_context->has_inlinecount( ) = abap_true.
+      es_response_context-inlinecount = lines( et_entityset ).
+    ENDIF.
+
+    /iwbep/cl_mgw_data_util=>orderby( EXPORTING it_order = it_order
+                                      CHANGING  ct_data  = et_entityset ).
+
+    /iwbep/cl_mgw_data_util=>paging( EXPORTING is_paging = ls_paging
+                                     CHANGING  ct_data   = et_entityset ).
+
   ENDMETHOD.
 
-  " GET_ENTITYSET: value help (search help) backed entity set via SHLP API
-  METHOD valuehelpset_get_entityset.
-    DATA ls_converted_keys        LIKE LINE OF et_entityset.
-    " TODO: variable is assigned but never used (ABAP cleaner)
-    DATA ls_message               TYPE bapiret2.
-    DATA lr_pernr                 LIKE RANGE OF ls_converted_keys-pernr.
-    DATA lt_selopt                TYPE ddshselops.
-    DATA lt_filter_select_options TYPE /iwbep/t_mgw_select_option.
-    DATA lt_result_list           TYPE /iwbep/if_sb_gendpc_shlp_data=>tt_result_list.
-    DATA lv_max_hits              TYPE i.
 
-    lt_filter_select_options = lo_filter->get_filter_select_options( ).
+*&---------------------------------------------------------------------
+*& Example 4 - $orderby with OData-property -> ABAP-field mapping
+*&
+*& $orderby is fully client-controlled. A property name taken straight
+*& from the request and handed to a DYNAMIC SORT is a remotely triggerable
+*& runtime error: SORT ... BY ('DOESNOTEXIST') dumps.
+*&
+*& Therefore: map through an EXPLICIT ALLOW-LIST and ignore anything that
+*& is not in it. Never mutate the caller's it_order - it is an IMPORTING
+*& parameter; work on a local copy.
+*&---------------------------------------------------------------------
+  METHOD xxxset_get_entityset.
 
-    LOOP AT lt_filter_select_options INTO DATA(ls_filter).
-      " TODO: variable is assigned but never used (ABAP cleaner)
-      LOOP AT ls_filter-select_options INTO DATA(ls_filter_range).
-        CASE ls_filter-property.
-          WHEN 'PERNR'.
-            lo_filter->convert_select_option( EXPORTING is_select_option = ls_filter
-                                              IMPORTING et_select_option = lr_pernr ).
+    " Explicit, auditable mapping: OData property -> ABAP component.
+    " Anything not listed here is not sortable, by design.
+    DATA(lt_sort_map) = VALUE ty_t_sort_map(
+        ( property = 'OrderNo'     field = 'ORDER_NO' )
+        ( property = 'Material'    field = 'MATNR'    )
+        ( property = 'CreatedOn'   field = 'ERDAT'    )
+        ( property = 'CompanyCode' field = 'BUKRS'    ) ).
 
-            LOOP AT lr_pernr INTO DATA(ls_pernr).
-              APPEND VALUE #( sign      = ls_pernr-sign
-                              option    = ls_pernr-option
-                              low       = ls_pernr-low
-                              high      = ls_pernr-high
-                              shlpname  = 'PM02'
-                              shlpfield = 'PERNR' ) TO lt_selopt.
-            ENDLOOP.
-        ENDCASE.
-      ENDLOOP.
+    DATA lt_sortorder TYPE abap_sortorder_tab.
+
+    " ... read your data into et_entityset here, then filter and count ...
+
+    " Build the dynamic sort table from VALIDATED components only.
+    LOOP AT it_order ASSIGNING FIELD-SYMBOL(<ls_order>).
+      DATA(lv_field) = VALUE fieldname( lt_sort_map[ property = <ls_order>-property ]-field OPTIONAL ).
+
+      IF lv_field IS INITIAL.
+        " Unknown / non-sortable property: ignore it.
+        " Raising a business exception instead is equally defensible -
+        " what matters is that it never reaches the dynamic SORT.
+        CONTINUE.
+      ENDIF.
+
+      APPEND VALUE #( name       = lv_field
+                      descending = xsdbool( <ls_order>-order = 'desc' ) ) TO lt_sortorder.
     ENDLOOP.
 
-    APPEND VALUE #( sign      = 'I'
-                    option    = 'CP'
-                    low       = '*'
-                    high      = '*'
-                    shlpname  = 'PM02'
-                    shlpfield = 'WERKS' ) TO lt_selopt.
+    IF lt_sortorder IS NOT INITIAL.
+      SORT et_entityset BY (lt_sortorder).
+    ENDIF.
 
-    me->/iwbep/if_sb_gendpc_shlp_data~get_search_help_values( EXPORTING it_selopt         = lt_selopt
-                                                                        iv_call_shlt_exit = 'X'
-                                                                        iv_maxrows        = lv_max_hits
-                                                                        iv_sort           = 'X'
-                                                                        iv_shlp_name      = 'PM02'
-                                                              IMPORTING es_message        = ls_message
-                                                                        et_return_list    = lt_result_list ).
+    " ... then page ...
 
-    LOOP AT lt_result_list INTO DATA(ls_result_list).
-      " TODO: variable is assigned but never used (ABAP cleaner)
-      APPEND INITIAL LINE TO et_entityset ASSIGNING FIELD-SYMBOL(<fs_entityset>).
+  ENDMETHOD.
 
-      CASE ls_result_list-field_name.
-        WHEN 'PERNR'.
-          fs_entityset-pernr = ls_result_list-field_value.
-        WHEN 'WERKS'.
-          fs_entityset-werks = ls_result_list-field_value.
+
+*&---------------------------------------------------------------------
+*& Example 5 - value help backed by a standard DDIC search help
+*&
+*& /IWBEP/IF_SB_GENDPC_SHLP_DATA~GET_SEARCH_HELP_VALUES( ) is the
+*& SEGW-generated DPC's bridge to a DDIC search help, including its
+*& search-help exit.
+*&
+*& AUTHORIZATION: PM02 is a STANDARD SAP search help over HR master data.
+*& Exposing personnel numbers (and, depending on the search help, names)
+*& through an OData entity set makes them reachable by anyone who can
+*& reach the service. The search help does not carry your application's
+*& HR authorization concept. Enforce it here, or do not expose this set.
+*&---------------------------------------------------------------------
+  METHOD valuehelpset_get_entityset.
+
+    CONSTANTS lc_shlp_name TYPE shlpname VALUE 'PM02'.
+    " Always cap a value help. An uncapped F4 over HR master data can
+    " return the entire dataset over HTTP.
+    CONSTANTS lc_max_hits  TYPE i        VALUE 200.
+
+    DATA lt_selopt      TYPE ddshselops.
+    DATA lt_result_list TYPE /iwbep/if_sb_gendpc_shlp_data=>tt_result_list.
+    DATA ls_message     TYPE bapiret2.
+    DATA lr_pernr       TYPE RANGE OF pernr_d.
+
+    " 1) $filter -> search-help selection options.
+    "    One CASE per property; no nested loop over select_options - that
+    "    would run the conversion and the APPEND once per range line and
+    "    duplicate every entry.
+    DATA(lo_filter) = io_tech_request_context->get_filter( ).
+
+    LOOP AT lo_filter->get_filter_select_options( ) ASSIGNING FIELD-SYMBOL(<ls_select_option>).
+      CASE <ls_select_option>-property.
+        WHEN 'Pernr'.
+          lo_filter->convert_select_option( EXPORTING is_select_option = <ls_select_option>
+                                            IMPORTING et_select_option = lr_pernr ).
+
+          LOOP AT lr_pernr ASSIGNING FIELD-SYMBOL(<ls_pernr>).
+            APPEND VALUE #( sign      = <ls_pernr>-sign
+                            option    = <ls_pernr>-option
+                            low       = <ls_pernr>-low
+                            high      = <ls_pernr>-high
+                            shlpname  = lc_shlp_name
+                            shlpfield = 'PERNR' ) TO lt_selopt.
+          ENDLOOP.
       ENDCASE.
     ENDLOOP.
-  ENDMETHOD.
 
-  " GET_ENTITYSET: manual $top/$skip paging applied to an already-fetched internal table
-  METHOD xxxset_get_entityset.
-    DATA ls_paging TYPE /iwbep/s_mgw_paging.
-    DATA lv_skip   TYPE int4.
-    DATA lv_top    TYPE int4.
+    " 2) Honour $top where the caller supplied one, never exceeding the cap.
+    DATA(lv_max_hits) = COND i( WHEN io_tech_request_context->get_top( ) BETWEEN 1 AND lc_max_hits
+                                THEN io_tech_request_context->get_top( )
+                                ELSE lc_max_hits ).
 
-    ls_paging-top  = io_tech_request_context->get_top( ).
-    ls_paging-skip = io_tech_request_context->get_skip( ).
+    " 3) Run the search help.
+    me->/iwbep/if_sb_gendpc_shlp_data~get_search_help_values(
+      EXPORTING it_selopt      = lt_selopt
+                iv_maxrows     = lv_max_hits
+                iv_sort        = abap_true
+                iv_shlp_name   = lc_shlp_name
+      IMPORTING es_message     = ls_message
+                et_return_list = lt_result_list ).
 
-    lv_skip = COND #( WHEN ls_paging-skip IS NOT INITIAL
-                      THEN ls_paging-skip + 1
-                      ELSE 0 ).
+    " 4) A failed search help must not look like an empty result.
+    IF ls_message-type CA 'EAX'.
+      DATA(lo_message_container) = mo_context->get_message_container( ).
+      lo_message_container->add_messages_from_bapi(
+          it_bapi_messages          = VALUE bapiret2_t( ( ls_message ) )
+          iv_add_to_response_header = abap_true ).
 
-    lv_top = COND #(
-      WHEN ls_paging-top <> 0 AND lv_skip IS NOT INITIAL THEN ls_paging-top + lv_skip - 1
-      WHEN ls_paging-top <> 0 AND lv_skip IS INITIAL     THEN ls_paging-top
-      ELSE                                                    0 ).
+      RAISE EXCEPTION NEW /iwbep/cx_mgw_busi_exception(
+                              message_container = lo_message_container ).
+    ENDIF.
 
-    LOOP AT lt_data INTO DATA(ls_data) FROM lv_skip TO lv_top.
-      APPEND CORRESPONDING #( ls_data ) TO et_entityset.
+    " 5) Map the result list into entities.
+    "
+    "    NEEDS OFFICIAL VERIFICATION: TT_RESULT_LIST is a FLAT list - one
+    "    row per FIELD per RECORD - and the component that identifies the
+    "    record position is release-specific. Check the type in SE11/SE24
+    "    on your own system and group by that component, otherwise you get
+    "    one entity per field instead of one entity per record.
+    "
+    "    The loop below maps a single-field result (PERNR only), which is
+    "    correct without grouping. Extend it only after verifying the
+    "    record-position component.
+    LOOP AT lt_result_list ASSIGNING FIELD-SYMBOL(<ls_result>).
+      CASE <ls_result>-field_name.
+        WHEN 'PERNR'.
+          APPEND VALUE #( pernr = <ls_result>-field_value ) TO et_entityset.
+      ENDCASE.
     ENDLOOP.
+
+    IF io_tech_request_context->has_inlinecount( ) = abap_true.
+      es_response_context-inlinecount = lines( et_entityset ).
+    ENDIF.
+
   ENDMETHOD.
-  
+
+
+*&---------------------------------------------------------------------
+*& Example 6 - manual $top / $skip paging
+*&
+*& Shown to make explicit what /IWBEP/CL_MGW_DATA_UTIL=>PAGING( ) does
+*& internally. Prefer the utility (example 2) in real code.
+*&
+*& The two classic bugs, both fixed here:
+*&   - no $top sent  -> top = 0 -> "TO 0" returns NOTHING
+*&   - no $skip sent -> skip = 0 -> "FROM 0" is not a valid start row
+*&     (LOOP AT ... FROM/TO are 1-based row numbers)
+*&---------------------------------------------------------------------
+  METHOD xxxset_get_entityset.
+
+    DATA lt_data TYPE STANDARD TABLE OF zcl_zsm_mpc=>ts_xxx WITH DEFAULT KEY.
+
+    " ... read, filter, count and sort lt_data first ...
+
+    DATA(lv_top)  = io_tech_request_context->get_top( ).
+    DATA(lv_skip) = io_tech_request_context->get_skip( ).
+
+    " First row to return (1-based).
+    DATA(lv_from) = lv_skip + 1.
+
+    " Last row to return. No $top means "to the end", not "nothing".
+    DATA(lv_to) = COND i( WHEN lv_top > 0 THEN lv_skip + lv_top
+                                          ELSE lines( lt_data ) ).
+
+    IF lv_from > lines( lt_data ).
+      " $skip beyond the end -> empty page, which is correct here.
+      RETURN.
+    ENDIF.
+
+    IF lv_to > lines( lt_data ).
+      lv_to = lines( lt_data ).
+    ENDIF.
+
+    LOOP AT lt_data ASSIGNING FIELD-SYMBOL(<ls_data>) FROM lv_from TO lv_to.
+      APPEND CORRESPONDING #( <ls_data> ) TO et_entityset.
+    ENDLOOP.
+
+  ENDMETHOD.
