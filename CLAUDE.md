@@ -71,9 +71,16 @@ Coding rules: docs/Gateway-Development-Rules.md (planned; until it exists, follo
   ...) are aligned in the planned pass; do not add new ones.
 - Entity types singular PascalCase (`Header`); sets add `Set`, value helps
   `VHSet` (`MaterialGroupVHSet`); navigation `<Source>To<Target>Nav`.
-- Variables: classic prefixes as in ABAPGuide (`lv_`, `lt_`, `lo_`, `lx_`,
-  `iv_`, `et_`); field symbols `<ls_...>` / `<lt_...>`. Comments: `"` with
-  `" ---` rules, numbered steps `" 1) ...`, ASCII hyphens only.
+- ABAP naming follows SAP's Clean ABAP style guide: descriptive names
+  without type or scope prefixes (`sales_orders`, not `lt_vbak`).
+  Exceptions: names fixed by a signature you do not own (SEGW-generated
+  methods and types such as `io_tech_request_context`, `et_entityset`,
+  `er_entity` and `ts_<entity>`, BAPI and function module interfaces,
+  inherited or interface methods) stay as they are. Existing examples are
+  migrated in the planned pass; legacy-labelled examples keep their
+  construct but use current naming.
+- Comments: `"` with `" ---` rules, numbered steps `" 1) ...`, ASCII
+  hyphens only.
 - Mark where business authorization belongs; never invent an authorization
   object. Identity is `sy-uname`, never a header; URI keys, Slug and MIME
   type are untrusted. Model flags are metadata, not security; a
